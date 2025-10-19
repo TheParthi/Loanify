@@ -11,12 +11,11 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const CheckCustomerEligibilityInputSchema = z.object({
-  creditScore: z
+  creditScore: z.number().describe('The credit score of the customer.'),
+  annualIncome: z.number().describe('The annual income of the customer.'),
+  monthlyEmi: z
     .number()
-    .describe('The credit score of the customer.'),
-  incomeToEmiRatio: z
-    .number()
-    .describe('The income to EMI ratio of the customer.'),
+    .describe('The current total monthly EMI of the customer.'),
   loanAmount: z.number().describe('The loan amount requested by the customer.'),
   loanTenure: z.number().describe('The loan tenure in months.'),
 });
@@ -26,7 +25,9 @@ const CheckCustomerEligibilityOutputSchema = z.object({
   eligibilityPercentage: z
     .number()
     .describe('The estimated eligibility percentage for the loan.'),
-  reasons: z.array(z.string()).describe('The reasons for the eligibility percentage.'),
+  reasons: z
+    .array(z.string())
+    .describe('The reasons for the eligibility percentage.'),
 });
 export type CheckCustomerEligibilityOutput = z.infer<typeof CheckCustomerEligibilityOutputSchema>;
 
@@ -43,14 +44,16 @@ const prompt = ai.definePrompt({
   Based on the following information, determine the eligibility percentage for the loan:
 
   Credit Score: {{{creditScore}}}
-  Income to EMI Ratio: {{{incomeToEmiRatio}}}
+  Annual Income: {{{annualIncome}}}
+  Current Monthly EMI: {{{monthlyEmi}}}
   Loan Amount: {{{loanAmount}}}
   Loan Tenure: {{{loanTenure}}}
 
-  Consider the following factors when determining the eligibility percentage:
+  Consider the following factors when determining the eligibility percentage. The monthly income is annualIncome / 12. Calculate the income to EMI ratio which is (current monthly EMI + proposed monthly EMI) / monthly income. The proposed monthly EMI can be estimated.
 
   - A higher credit score indicates a higher eligibility percentage.
   - A lower income to EMI ratio indicates a higher eligibility percentage.
+  - A higher annual income indicates a higher eligibility percentage.
   - A lower loan amount indicates a higher eligibility percentage.
   - A shorter loan tenure indicates a higher eligibility percentage.
 

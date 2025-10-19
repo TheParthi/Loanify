@@ -7,7 +7,8 @@ import type { Applicant } from '@/lib/types';
 
 const checkEligibilitySchema = z.object({
   creditScore: z.coerce.number().min(300).max(850),
-  incomeToEmiRatio: z.coerce.number().min(0),
+  annualIncome: z.coerce.number().min(10000, "Annual income must be at least 10,000"),
+  monthlyEmi: z.coerce.number().min(0, "Monthly EMI cannot be negative"),
   loanAmount: z.coerce.number().min(1000),
   loanTenure: z.coerce.number().min(6),
 });
@@ -27,7 +28,8 @@ export async function handleCheckEligibility(
 ): Promise<EligibilityResult | null> {
   const validatedFields = checkEligibilitySchema.safeParse({
     creditScore: formData.get('creditScore'),
-    incomeToEmiRatio: formData.get('incomeToEmiRatio'),
+    annualIncome: formData.get('annualIncome'),
+    monthlyEmi: formData.get('monthlyEmi'),
     loanAmount: formData.get('loanAmount'),
     loanTenure: formData.get('loanTenure'),
   });

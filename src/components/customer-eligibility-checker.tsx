@@ -22,7 +22,8 @@ import { EligibilityResult } from '@/components/eligibility-result';
 
 const formSchema = z.object({
   creditScore: z.coerce.number().min(300, "Must be at least 300").max(850, "Must be at most 850"),
-  incomeToEmiRatio: z.coerce.number().min(0, "Cannot be negative").max(1, "Cannot be more than 1"),
+  annualIncome: z.coerce.number().min(10000, "Annual income must be at least 10,000"),
+  monthlyEmi: z.coerce.number().min(0, "Monthly EMI cannot be negative"),
   loanAmount: z.coerce.number().min(1000, "Must be at least 1000"),
   loanTenure: z.coerce.number().min(6, "Must be at least 6 months"),
 });
@@ -50,7 +51,8 @@ export function CustomerEligibilityChecker() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       creditScore: 720,
-      incomeToEmiRatio: 0.4,
+      annualIncome: 80000,
+      monthlyEmi: 500,
       loanAmount: 50000,
       loanTenure: 60,
     }
@@ -90,15 +92,24 @@ export function CustomerEligibilityChecker() {
               {errors.creditScore && <p className="text-xs text-destructive">{errors.creditScore.message}</p>}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="incomeToEmiRatio">Income to EMI Ratio</Label>
+              <Label htmlFor="annualIncome">Annual Income ($)</Label>
               <Input
-                id="incomeToEmiRatio"
-                placeholder="e.g., 0.4"
+                id="annualIncome"
+                placeholder="e.g., 80000"
                 type="number"
-                step="0.01"
-                {...register('incomeToEmiRatio')}
+                {...register('annualIncome')}
               />
-              {errors.incomeToEmiRatio && <p className="text-xs text-destructive">{errors.incomeToEmiRatio.message}</p>}
+              {errors.annualIncome && <p className="text-xs text-destructive">{errors.annualIncome.message}</p>}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="monthlyEmi">Total Current Monthly EMI ($)</Label>
+              <Input
+                id="monthlyEmi"
+                placeholder="e.g., 500"
+                type="number"
+                {...register('monthlyEmi')}
+              />
+              {errors.monthlyEmi && <p className="text-xs text-destructive">{errors.monthlyEmi.message}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="loanAmount">Loan Amount ($)</Label>
