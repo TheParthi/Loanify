@@ -1,10 +1,10 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState, useEffect } from 'react';
+import { useFormStatus } from 'react-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -40,7 +40,7 @@ function SubmitButton() {
 
 export function CustomerEligibilityChecker() {
   const { toast } = useToast();
-  const [state, formAction] = useFormState(handleCheckEligibility, null);
+  const [state, formAction] = useActionState(handleCheckEligibility, null);
 
   const {
     register,
