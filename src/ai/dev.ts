@@ -1,1 +1,5 @@
-// Flows will be imported for their side effects in this file.
+import { config } from 'dotenv';
+config();
+
+import '@/ai/flows/check-customer-eligibility.ts';
+import '@/ai/flows/generate-loan-evaluation-report.ts';
