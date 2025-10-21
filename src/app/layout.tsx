@@ -1,10 +1,11 @@
 import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
+import { LoanifyChatWidget } from '@/components/chat/loanify-chat-widget';
 
 export const metadata: Metadata = {
-  title: 'LoanPilot AI',
-  description: 'AI-powered loan eligibility and processing.',
+  title: 'Loanify - Simplify Loan Approvals with Intelligence',
+  description: 'Simplify Loan Approvals with Intelligence',
 };
 
 export default function RootLayout({
@@ -22,6 +23,7 @@ export default function RootLayout({
       <body className="font-body antialiased">
         {children}
         <Toaster />
+        <LoanifyChatWidget />
       </body>
     </html>
   );
