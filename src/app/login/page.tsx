@@ -92,7 +92,7 @@ export default function AdminLogin() {
                     alt="Loanify" 
                     width={600} 
                     height={600} 
-                    className="w-150 h-150 object-contain" 
+                    className="w-[600px] h-[600px] object-contain" 
                   />
                 </div>
                 <h2 className="text-3xl font-bold mb-2" style={{ color: '#1E1E1E' }}>
