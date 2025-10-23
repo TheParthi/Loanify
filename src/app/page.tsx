@@ -32,6 +32,7 @@ import {
   Download,
   ExternalLink
 } from 'lucide-react';
+import Image from 'next/image';
 
 export default function HomePage() {
   const [loanAmount, setLoanAmount] = useState(500000);
@@ -84,7 +85,7 @@ export default function HomePage() {
     alert(`${eligibilityStatus}: ${message}`);
   };
 
-  const applyForLoan = (loanType) => {
+  const applyForLoan = (loanType: string) => {
     // Redirect to eligibility page with loan type
     window.location.href = `/eligibility?type=${loanType}`;
   };
@@ -96,9 +97,13 @@ export default function HomePage() {
         <div className="container mx-auto px-6">
           <div className="flex items-center justify-between h-20">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #0047AB 0%, #00B4D8 100%)' }}>
-                <span className="text-white font-bold text-2xl">L</span>
-              </div>
+              <Image 
+                src="https://i.postimg.cc/jjf05QN2/Create-a-modern-minimalist-logo-icon-for-a-fintech-AI-platform-focused-on-smart-loan-approvals-and.png"
+                alt="Loanify Logo"
+                width={56}
+                height={56}
+                className="w-14 h-14 object-contain"
+              />
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">Loanify NBFC</h1>
                 <p className="text-xs font-medium" style={{ color: '#C9D1D9' }}>RBI Licensed • NBFC-ND-SI • Est. 2020</p>
@@ -167,7 +172,7 @@ export default function HomePage() {
                 <Button 
                   size="lg" 
                   variant="outline" 
-                  onClick={() => document.getElementById('emi-calculator').scrollIntoView({ behavior: 'smooth' })}
+                  onClick={() => document.getElementById('emi-calculator')?.scrollIntoView({ behavior: 'smooth' })}
                   className="px-10 py-6 text-xl font-bold border-4 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105" 
                   style={{ borderColor: '#0047AB', color: '#0047AB', background: 'white' }}
                 >
@@ -430,9 +435,13 @@ export default function HomePage() {
           <div className="grid md:grid-cols-4 gap-10 mb-12">
             <div>
               <div className="flex items-center gap-4 mb-8">
-                <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #00B4D8 0%, #FFFFFF 100%)' }}>
-                  <span className="font-bold text-xl" style={{ color: '#0047AB' }}>L</span>
-                </div>
+                <Image 
+                  src="https://i.postimg.cc/jjf05QN2/Create-a-modern-minimalist-logo-icon-for-a-fintech-AI-platform-focused-on-smart-loan-approvals-and.png"
+                  alt="Loanify Logo"
+                  width={48}
+                  height={48}
+                  className="w-12 h-12 object-contain"
+                />
                 <div>
                   <h3 className="font-bold text-2xl">Loanify NBFC</h3>
                   <p className="text-sm" style={{ color: '#C9D1D9' }}>RBI Licensed NBFC</p>

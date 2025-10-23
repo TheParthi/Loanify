@@ -6,7 +6,7 @@ export function Logo({ className }: { className?: string }) {
   return (
     <Link href="/" className={cn("flex items-center gap-2 text-primary font-semibold", className)}>
       <Image 
-        src="/logo.png" 
+        src="https://i.postimg.cc/jjf05QN2/Create-a-modern-minimalist-logo-icon-for-a-fintech-AI-platform-focused-on-smart-loan-approvals-and.png" 
         alt="Loanify Logo" 
         width={40} 
         height={40} 

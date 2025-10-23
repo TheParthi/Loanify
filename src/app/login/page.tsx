@@ -19,6 +19,7 @@ import {
   Phone,
   Mail
 } from 'lucide-react';
+import Image from 'next/image';
 
 export default function AdminLogin() {
   const [username, setUsername] = useState('');
@@ -57,9 +58,13 @@ export default function AdminLogin() {
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#0047AB' }}>
-                <span className="text-white font-bold text-xl">L</span>
-              </div>
+              <Image 
+                src="https://i.postimg.cc/jjf05QN2/Create-a-modern-minimalist-logo-icon-for-a-fintech-AI-platform-focused-on-smart-loan-approvals-and.png"
+                alt="Loanify Logo"
+                width={40}
+                height={40}
+                className="w-10 h-10 object-contain"
+              />
               <div>
                 <h1 className="text-xl font-bold" style={{ color: '#1E1E1E' }}>Loanify NBFC</h1>
                 <p className="text-xs" style={{ color: '#C9D1D9' }}>Admin Portal</p>

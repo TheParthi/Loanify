@@ -19,6 +19,7 @@ import {
   Clock,
   Users
 } from 'lucide-react';
+import Image from 'next/image';
 
 export default function LoansPage() {
   const [selectedLoan, setSelectedLoan] = useState('personal');
@@ -146,7 +147,7 @@ export default function LoansPage() {
     return Math.round(emi);
   };
 
-  const currentLoan = loanProducts[selectedLoan];
+  const currentLoan = loanProducts[selectedLoan as keyof typeof loanProducts];
   const emi = calculateEMI(loanAmount, parseFloat(currentLoan.rate), tenure);
 
   return (
@@ -156,9 +157,13 @@ export default function LoansPage() {
         <div className="container mx-auto px-6">
           <div className="flex items-center justify-between h-20">
             <Link href="/" className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #0047AB 0%, #00B4D8 100%)' }}>
-                <span className="text-white font-bold text-2xl">L</span>
-              </div>
+              <Image 
+                src="https://i.postimg.cc/jjf05QN2/Create-a-modern-minimalist-logo-icon-for-a-fintech-AI-platform-focused-on-smart-loan-approvals-and.png"
+                alt="Loanify Logo"
+                width={56}
+                height={56}
+                className="w-14 h-14 object-contain"
+              />
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">Loanify NBFC</h1>
                 <p className="text-xs font-medium" style={{ color: '#C9D1D9' }}>Loan Products</p>

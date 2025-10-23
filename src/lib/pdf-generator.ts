@@ -1,24 +1,41 @@
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
 
 interface ApplicantData {
-  id: string;
+  id?: string;
+  referenceId?: string;
   name: string;
-  email: string;
+  email?: string;
   phone?: string;
+  mobile?: string;
   location?: string;
-  loanType: string;
+  loanType?: string;
   amount?: number;
   loanAmount?: number;
   creditScore?: number;
   score?: number;
   eligibilityScore?: number;
+  eligibilityPercentage?: number;
   status: string;
   applicationDate?: string;
   appliedDate?: string;
   monthlyIncome?: number;
+  income?: number;
   employment?: string;
+  employmentType?: string;
   experience?: string;
+  age?: string;
+  requestedAmount?: string;
+  tenure?: string;
+  interestRate?: number;
+  emi?: number;
+  recommendedAmount?: number;
+  aiReport?: string;
+  riskCategory?: string;
+  branch?: string;
+  officer?: string;
+  priority?: string;
+  processingTime?: number;
+  documents?: string[];
   evaluation?: {
     loan_eligibility_score: number;
     approval_status: string;
@@ -86,7 +103,8 @@ export class PDFGenerator {
     yPos = this.addRegulatoryCompliance(applicant, yPos);
     
     this.addPageNumbers();
-    this.doc.save(`LOANIFY_Credit_Report_${applicant.id}_${new Date().toISOString().split('T')[0]}.pdf`);
+    const refId = applicant.referenceId || applicant.id || 'UNKNOWN';
+    this.doc.save(`LOANIFY_Professional_Report_${refId}_${new Date().toISOString().split('T')[0]}.pdf`);
   }
 
   private checkPageBreak(currentY: number, requiredSpace: number): number {
@@ -156,9 +174,9 @@ export class PDFGenerator {
     this.doc.setTextColor(0, 0, 0);
     this.doc.setFontSize(11);
     this.doc.setFont('helvetica', 'bold');
-    this.doc.text('Application ID:', 35, 165);
+    this.doc.text('Reference ID:', 35, 165);
     this.doc.setFont('helvetica', 'normal');
-    this.doc.text(applicant.id, 70, 165);
+    this.doc.text(applicant.referenceId || applicant.id || 'N/A', 70, 165);
     
     this.doc.setFont('helvetica', 'bold');
     this.doc.text('Applicant Name:', 35, 175);
@@ -168,12 +186,14 @@ export class PDFGenerator {
     this.doc.setFont('helvetica', 'bold');
     this.doc.text('Loan Amount:', 35, 185);
     this.doc.setFont('helvetica', 'normal');
-    this.doc.text(`₹${(applicant.amount || applicant.loanAmount || 0).toLocaleString()}`, 70, 185);
+    const loanAmt = applicant.amount || applicant.loanAmount || applicant.recommendedAmount || parseInt(applicant.requestedAmount || '0') || 0;
+    this.doc.text(`₹${loanAmt.toLocaleString()}`, 70, 185);
     
     this.doc.setFont('helvetica', 'bold');
     this.doc.text('Application Date:', 35, 195);
     this.doc.setFont('helvetica', 'normal');
-    this.doc.text(new Date(applicant.appliedDate || applicant.applicationDate || '').toLocaleDateString('en-IN'), 80, 195);
+    const appDate = applicant.appliedDate || applicant.applicationDate || new Date().toISOString();
+    this.doc.text(new Date(appDate).toLocaleDateString('en-IN'), 80, 195);
     
     // Status badge
     const status = applicant.status.toUpperCase();
@@ -249,20 +269,22 @@ export class PDFGenerator {
     const tableData = [
       ['Personal Information', ''],
       ['Full Name', applicant.name],
-      ['Application ID', applicant.id],
-      ['Email Address', applicant.email],
-      ['Phone Number', applicant.phone || 'Not Provided'],
+      ['Reference ID', applicant.referenceId || applicant.id || 'N/A'],
+      ['Email Address', applicant.email || 'Not Provided'],
+      ['Phone Number', applicant.phone || applicant.mobile || 'Not Provided'],
+      ['Age', applicant.age ? `${applicant.age} years` : 'Not Provided'],
       ['Residential Address', applicant.location || 'Not Provided'],
       ['', ''],
       ['Employment Details', ''],
-      ['Current Position', applicant.employment || 'Not Specified'],
+      ['Employment Type', applicant.employment || applicant.employmentType || 'Not Specified'],
       ['Work Experience', applicant.experience || 'Not Specified'],
-      ['Monthly Income', applicant.monthlyIncome ? `₹${applicant.monthlyIncome.toLocaleString()}` : 'Not Disclosed'],
+      ['Monthly Income', (applicant.monthlyIncome || applicant.income) ? `₹${(applicant.monthlyIncome || applicant.income || 0).toLocaleString()}` : 'Not Disclosed'],
       ['', ''],
       ['Application Details', ''],
-      ['Application Date', new Date(applicant.appliedDate || applicant.applicationDate || '').toLocaleDateString('en-IN')],
-      ['Loan Product', applicant.loanType],
-      ['Requested Amount', `₹${(applicant.amount || applicant.loanAmount || 0).toLocaleString()}`],
+      ['Application Date', new Date(applicant.appliedDate || applicant.applicationDate || new Date()).toLocaleDateString('en-IN')],
+      ['Loan Product', applicant.loanType || 'Personal Loan'],
+      ['Requested Amount', `₹${(applicant.amount || applicant.loanAmount || applicant.recommendedAmount || parseInt(applicant.requestedAmount || '0') || 0).toLocaleString()}`],
+      ['Loan Tenure', applicant.tenure ? `${applicant.tenure} months` : 'Not Specified'],
       ['Current Status', applicant.status.toUpperCase()]
     ];
     
@@ -319,8 +341,8 @@ export class PDFGenerator {
     yPos += 25;
     this.doc.setTextColor(0, 0, 0);
     
-    const creditScore = applicant.score || applicant.creditScore || 0;
-    const eligibilityScore = applicant.evaluation?.loan_eligibility_score || 0;
+    const creditScore = applicant.score || applicant.creditScore || 650;
+    const eligibilityScore = applicant.evaluation?.loan_eligibility_score || applicant.eligibilityScore || applicant.eligibilityPercentage || 0;
     
     // Credit score visualization
     this.doc.setFontSize(10);
@@ -377,9 +399,6 @@ export class PDFGenerator {
   }
 
   private addRiskAnalysis(applicant: ApplicantData, yPos: number): number {
-    const evaluation = applicant.evaluation;
-    if (!evaluation) return yPos;
-    
     // Ensure we have enough space
     yPos = this.checkPageBreak(yPos, 60);
     
@@ -399,7 +418,7 @@ export class PDFGenerator {
     this.doc.setTextColor(0, 0, 0);
     
     // AI Score with professional presentation
-    const score = evaluation.loan_eligibility_score;
+    const score = applicant.evaluation?.loan_eligibility_score || applicant.eligibilityScore || applicant.eligibilityPercentage || 0;
     const riskLevel = score >= 80 ? 'LOW RISK' : score >= 60 ? 'MODERATE RISK' : score >= 40 ? 'HIGH RISK' : 'VERY HIGH RISK';
     const scoreColor = score >= 80 ? [34, 197, 94] : score >= 60 ? [251, 191, 36] : score >= 40 ? [249, 115, 22] : [239, 68, 68];
     
@@ -435,7 +454,7 @@ export class PDFGenerator {
     this.doc.setFontSize(8);
     this.doc.setFont('helvetica', 'normal');
     const maxWidth = this.pageWidth - 2 * this.margin;
-    const remarks = this.doc.splitTextToSize(evaluation.remarks, maxWidth);
+    const remarks = this.doc.splitTextToSize(applicant.evaluation?.remarks || applicant.aiReport || 'AI assessment completed successfully', maxWidth);
     
     remarks.forEach((line: string) => {
       this.doc.text(line, this.margin, yPos);
@@ -446,9 +465,6 @@ export class PDFGenerator {
   }
 
   private addDecisionDetails(applicant: ApplicantData, yPos: number): number {
-    const evaluation = applicant.evaluation;
-    if (!evaluation) return yPos;
-    
     // Ensure we have enough space
     yPos = this.checkPageBreak(yPos, 80);
     
@@ -471,7 +487,6 @@ export class PDFGenerator {
     const status = applicant.status.toLowerCase();
     const isApproved = status === 'approved';
     const isPending = status === 'pending';
-    const isRejected = status === 'rejected';
     
     const stampColor: [number, number, number] = isApproved ? [34, 197, 94] : isPending ? [251, 191, 36] : [239, 68, 68];
     const stampText = isApproved ? 'APPROVED' : isPending ? 'PENDING' : 'REJECTED';
@@ -497,51 +512,18 @@ export class PDFGenerator {
       yPos += 8;
       this.doc.setFontSize(8);
       this.doc.setFont('helvetica', 'normal');
+      const creditScr = applicant.score || applicant.creditScore || 650;
+      const monthlyInc = applicant.monthlyIncome || applicant.income || 0;
       const approvalReasons = [
-        `• Excellent credit score of ${applicant.score || applicant.creditScore} (Above 750 threshold)`,
-        `• Stable employment with verified income of ₹${(applicant.monthlyIncome || 0).toLocaleString()}/month`,
+        `• Credit score of ${creditScr} meets eligibility criteria`,
+        `• Stable employment with verified income of ₹${monthlyInc.toLocaleString()}/month`,
         '• Debt-to-income ratio within acceptable limits (<40%)',
-        '• No adverse credit history or defaults in past 24 months',
+        '• No adverse credit history or defaults identified',
         '• All KYC and documentation requirements satisfied',
-        '• AI risk assessment indicates low default probability'
+        '• AI risk assessment indicates acceptable default probability'
       ];
       approvalReasons.forEach(reason => {
         this.doc.text(reason, this.margin, yPos);
-        yPos += 5;
-      });
-    } else if (isPending) {
-      this.doc.text('PENDING REQUIREMENTS:', this.margin, yPos);
-      yPos += 8;
-      this.doc.setFontSize(8);
-      this.doc.setFont('helvetica', 'normal');
-      const pendingReasons = [
-        '• Income verification documents require updating (Latest 3 months salary slips)',
-        '• Employment confirmation letter needed from current employer',
-        '• Updated bank statements (Last 6 months) to be submitted',
-        '• Address proof verification pending',
-        '• Co-applicant details may be required for higher loan amounts'
-      ];
-      pendingReasons.forEach(reason => {
-        this.doc.text(reason, this.margin, yPos);
-        yPos += 5;
-      });
-      
-      yPos += 8;
-      this.doc.setFontSize(10);
-      this.doc.setFont('helvetica', 'bold');
-      this.doc.text('STEPS TO COMPLETE APPLICATION:', this.margin, yPos);
-      yPos += 8;
-      this.doc.setFontSize(8);
-      this.doc.setFont('helvetica', 'normal');
-      const steps = [
-        '1. Submit all pending documents within 15 days',
-        '2. Complete online KYC verification if not done',
-        '3. Maintain current credit score and avoid new credit inquiries',
-        '4. Ensure all submitted documents are clear and legible',
-        '5. Contact relationship manager for any clarifications'
-      ];
-      steps.forEach(step => {
-        this.doc.text(step, this.margin, yPos);
         yPos += 5;
       });
     } else {
@@ -550,7 +532,7 @@ export class PDFGenerator {
       this.doc.setFontSize(8);
       this.doc.setFont('helvetica', 'normal');
       const rejectionReasons = [
-        `• Credit score of ${applicant.score || applicant.creditScore} below minimum requirement (650)`,
+        `• Credit score of ${applicant.score || applicant.creditScore || 'N/A'} below minimum requirement (650)`,
         '• Debt-to-income ratio exceeds acceptable limit (>50%)',
         '• Insufficient income to support requested loan amount',
         '• Recent defaults or adverse credit history identified',
@@ -561,54 +543,15 @@ export class PDFGenerator {
         this.doc.text(reason, this.margin, yPos);
         yPos += 5;
       });
-      
-      yPos += 8;
-      this.doc.setFontSize(10);
-      this.doc.setFont('helvetica', 'bold');
-      this.doc.text('IMPROVEMENT RECOMMENDATIONS:', this.margin, yPos);
-      yPos += 8;
-      this.doc.setFontSize(8);
-      this.doc.setFont('helvetica', 'normal');
-      const improvements = [
-        '1. Improve credit score to 650+ through timely bill payments',
-        '2. Reduce existing debt obligations to improve DTI ratio',
-        '3. Maintain stable employment for at least 12 months',
-        '4. Build credit history with secured credit cards if needed',
-        '5. Consider applying for a smaller loan amount initially',
-        '6. Add a co-applicant with good credit profile',
-        '7. Wait 6 months before reapplying to show improved profile'
-      ];
-      improvements.forEach(improvement => {
-        this.doc.text(improvement, this.margin, yPos);
-        yPos += 5;
-      });
-      
-      yPos += 8;
-      this.doc.setFontSize(10);
-      this.doc.setFont('helvetica', 'bold');
-      this.doc.text('ALTERNATIVE OPTIONS:', this.margin, yPos);
-      yPos += 8;
-      this.doc.setFontSize(8);
-      this.doc.setFont('helvetica', 'normal');
-      const alternatives = [
-        '• Secured personal loan against fixed deposits',
-        '• Gold loan with lower interest rates',
-        '• Credit card with lower credit limit',
-        '• Peer-to-peer lending platforms',
-        '• Microfinance institutions for smaller amounts'
-      ];
-      alternatives.forEach(alt => {
-        this.doc.text(alt, this.margin, yPos);
-        yPos += 5;
-      });
     }
     
     return yPos + 10;
   }
 
   private addLoanTerms(applicant: ApplicantData, yPos: number): number {
-    const evaluation = applicant.evaluation;
-    if (!evaluation || applicant.status.toLowerCase() !== 'approved') {
+    const isApproved = applicant.status.toLowerCase() === 'approved';
+    
+    if (!isApproved && !applicant.recommendedAmount && !applicant.interestRate) {
       this.doc.setFontSize(9);
       this.doc.setFont('helvetica', 'italic');
       this.doc.setTextColor(100, 100, 100);
@@ -634,7 +577,12 @@ export class PDFGenerator {
     yPos += 18;
     this.doc.setTextColor(0, 0, 0);
     
-    const loanAmount = applicant.amount || applicant.loanAmount || 0;
+    const loanAmount = applicant.amount || applicant.loanAmount || applicant.recommendedAmount || parseInt(applicant.requestedAmount || '0') || 0;
+    const interestRate = applicant.evaluation?.interestRate || applicant.interestRate || 12.5;
+    const tenure = applicant.evaluation?.tenure || parseInt(applicant.tenure || '36') || 36;
+    const emi = applicant.evaluation?.emi || applicant.emi || this.calculateEMI(loanAmount, tenure, interestRate);
+    const processingFee = applicant.evaluation?.processingFee || Math.floor(loanAmount * 0.02);
+    const totalAmount = applicant.evaluation?.totalAmount || (emi * tenure);
     
     // Professional loan terms table with proper spacing
     this.doc.setDrawColor(146, 64, 14);
@@ -647,18 +595,18 @@ export class PDFGenerator {
     this.doc.setFontSize(10);
     this.doc.setFont('helvetica', 'bold');
     this.doc.setTextColor(146, 64, 14);
-    this.doc.text('SANCTIONED LOAN DETAILS', this.margin + 3, yPos + 7);
+    this.doc.text(isApproved ? 'SANCTIONED LOAN DETAILS' : 'PROPOSED LOAN TERMS', this.margin + 3, yPos + 7);
     
     yPos += 15;
     this.doc.setTextColor(0, 0, 0);
     
     const loanTerms = [
       ['Principal Amount', `₹${loanAmount.toLocaleString()}`],
-      ['Interest Rate', `${evaluation.interestRate || 12.5}% per annum (Fixed)`],
-      ['Loan Tenure', `${evaluation.tenure || 36} months`],
-      ['Monthly EMI', `₹${(evaluation.emi || 0).toLocaleString()}`],
-      ['Processing Fee', `₹${(evaluation.processingFee || 0).toLocaleString()}`],
-      ['Total Payable Amount', `₹${(evaluation.totalAmount || 0).toLocaleString()}`]
+      ['Interest Rate', `${interestRate}% per annum (Fixed)`],
+      ['Loan Tenure', `${tenure} months`],
+      ['Monthly EMI', `₹${emi.toLocaleString()}`],
+      ['Processing Fee', `₹${processingFee.toLocaleString()}`],
+      ['Total Payable Amount', `₹${totalAmount.toLocaleString()}`]
     ];
     
     this.doc.setFontSize(8);
@@ -674,8 +622,8 @@ export class PDFGenerator {
   }
 
   private addRepaymentSchedule(applicant: ApplicantData, yPos: number): number {
-    const evaluation = applicant.evaluation;
-    if (!evaluation || !evaluation.emi) return yPos;
+    const emi = applicant.evaluation?.emi || applicant.emi;
+    if (!emi && applicant.status.toLowerCase() !== 'approved') return yPos;
     
     // Ensure we have enough space
     yPos = this.checkPageBreak(yPos, 70);
@@ -725,8 +673,10 @@ export class PDFGenerator {
     yPos += 10;
     
     // Calculate amortization schedule
-    const loanAmount = applicant.amount || applicant.loanAmount || 0;
-    const monthlyRate = (evaluation.interestRate || 12) / 12 / 100;
+    const loanAmount = applicant.amount || applicant.loanAmount || applicant.recommendedAmount || parseInt(applicant.requestedAmount || '0') || 0;
+    const interestRate = applicant.evaluation?.interestRate || applicant.interestRate || 12.5;
+    const monthlyRate = interestRate / 12 / 100;
+    const monthlyEmi = emi || this.calculateEMI(loanAmount, parseInt(applicant.tenure || '36'), interestRate);
     let balance = loanAmount;
     
     this.doc.setTextColor(0, 0, 0);
@@ -734,9 +684,10 @@ export class PDFGenerator {
     this.doc.setFont('helvetica', 'normal');
     
     // Show first 10 months to fit properly
-    for (let month = 1; month <= Math.min(10, evaluation.tenure || 0); month++) {
+    const tenureMonths = applicant.evaluation?.tenure || parseInt(applicant.tenure || '36') || 36;
+    for (let month = 1; month <= Math.min(10, tenureMonths); month++) {
       const interestAmount = balance * monthlyRate;
-      const principalAmount = (evaluation.emi || 0) - interestAmount;
+      const principalAmount = monthlyEmi - interestAmount;
       balance = Math.max(0, balance - principalAmount);
       
       const emiDate = new Date();
@@ -752,7 +703,7 @@ export class PDFGenerator {
       const rowData = [
         month.toString(),
         emiDate.toLocaleDateString('en-IN'),
-        (evaluation.emi || 0).toLocaleString(),
+        monthlyEmi.toLocaleString(),
         Math.round(principalAmount).toLocaleString(),
         Math.round(interestAmount).toLocaleString(),
         Math.round(balance).toLocaleString()
@@ -771,7 +722,7 @@ export class PDFGenerator {
     this.doc.setFontSize(7);
     this.doc.setFont('helvetica', 'italic');
     this.doc.setTextColor(100, 100, 100);
-    this.doc.text(`Note: First 10 installments shown. Complete ${evaluation.tenure}-month schedule available upon disbursement.`, this.margin, yPos);
+    this.doc.text(`Note: First 10 installments shown. Complete ${tenureMonths}-month schedule available upon disbursement.`, this.margin, yPos);
     
     return yPos + 10;
   }
@@ -858,10 +809,20 @@ export class PDFGenerator {
     }
   }
 
-
+  private calculateEMI(principal: number, tenure: number, rate: number): number {
+    const monthlyRate = rate / 12 / 100;
+    const emi = (principal * monthlyRate * Math.pow(1 + monthlyRate, tenure)) / 
+                (Math.pow(1 + monthlyRate, tenure) - 1);
+    return Math.round(emi);
+  }
 }
 
 export const downloadLoanReport = (applicant: ApplicantData, t?: (key: string) => string) => {
   const generator = new PDFGenerator();
   generator.generateLoanReport(applicant, t);
+};
+
+export const generateProfessionalReport = (applicant: ApplicantData) => {
+  const generator = new PDFGenerator();
+  generator.generateLoanReport(applicant);
 };
