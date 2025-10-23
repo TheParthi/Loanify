@@ -1,274 +1,382 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { 
-  TrendingUp, 
   Users, 
-  FileText, 
   CheckCircle, 
   XCircle, 
-  Clock,
+  Clock, 
+  TrendingUp, 
   DollarSign,
-  Activity,
-  ArrowUpRight,
-  ArrowDownRight,
+  FileText,
+  AlertTriangle,
   BarChart3,
   PieChart,
   Calendar,
-  Filter
+  MapPin
 } from 'lucide-react';
-import { useTranslation } from '@/lib/i18n';
 import Link from 'next/link';
 
-const getStats = (t: (key: string) => string) => [
-  {
-    title: t('totalApplications') || 'Total Applications',
-    value: '2,847',
-    change: '+12.5%',
-    trend: 'up',
-    icon: FileText,
-    color: 'bg-blue-500'
-  },
-  {
-    title: t('approvedLoans') || 'Approved Loans',
-    value: '1,923',
-    change: '+8.2%',
-    trend: 'up',
-    icon: CheckCircle,
-    color: 'bg-green-500'
-  },
-  {
-    title: t('pendingReview') || 'Pending Review',
-    value: '456',
-    change: '-3.1%',
-    trend: 'down',
-    icon: Clock,
-    color: 'bg-yellow-500'
-  },
-  {
-    title: t('totalDisbursed') || 'Total Disbursed',
-    value: '₹45.2Cr',
-    change: '+15.8%',
-    trend: 'up',
-    icon: DollarSign,
-    color: 'bg-purple-500'
-  }
-];
-
-const recentApplications = [
-  { id: 'LA001', name: 'Rajesh Kumar', amount: '₹5,00,000', status: 'approved', time: '2 hours ago' },
-  { id: 'LA002', name: 'Priya Sharma', amount: '₹2,50,000', status: 'pending', time: '4 hours ago' },
-  { id: 'LA003', name: 'Amit Singh', amount: '₹7,50,000', status: 'review', time: '6 hours ago' },
-  { id: 'LA004', name: 'Sunita Devi', amount: '₹3,00,000', status: 'approved', time: '8 hours ago' },
-  { id: 'LA005', name: 'Vikram Patel', amount: '₹4,25,000', status: 'rejected', time: '1 day ago' }
-];
+interface DashboardStats {
+  totalApplications: number;
+  pendingApplications: number;
+  approvedApplications: number;
+  rejectedApplications: number;
+  averageScore: number;
+  totalLoanAmount: number;
+  approvalRate: number;
+  applicationsByBranch: { [key: string]: number };
+  recentApplications: Array<{
+    id: string;
+    name: string;
+    amount: number;
+    status: string;
+    score: number;
+    date: string;
+    branch: string;
+  }>;
+}
 
 export default function AdminDashboard() {
-  const { t } = useTranslation();
-  const stats = getStats(t);
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [selectedPeriod, setSelectedPeriod] = useState('30d');
+
+  useEffect(() => {
+    setTimeout(() => {
+      setStats({
+        totalApplications: 1247,
+        pendingApplications: 89,
+        approvedApplications: 756,
+        rejectedApplications: 402,
+        averageScore: 72.5,
+        totalLoanAmount: 45600000,
+        approvalRate: 60.6,
+        applicationsByBranch: {
+          'Mumbai Central': 324,
+          'Delhi NCR': 298,
+          'Bangalore': 267,
+          'Chennai': 189,
+          'Pune': 169
+        },
+        recentApplications: [
+          {
+            id: 'LF12345678',
+            name: 'Rajesh Kumar',
+            amount: 500000,
+            status: 'APPROVED',
+            score: 85,
+            date: '2024-01-15',
+            branch: 'Mumbai Central'
+          },
+          {
+            id: 'LF12345679',
+            name: 'Priya Sharma',
+            amount: 300000,
+            status: 'PENDING',
+            score: 72,
+            date: '2024-01-15',
+            branch: 'Delhi NCR'
+          },
+          {
+            id: 'LF12345680',
+            name: 'Amit Patel',
+            amount: 750000,
+            status: 'REJECTED',
+            score: 45,
+            date: '2024-01-14',
+            branch: 'Bangalore'
+          },
+          {
+            id: 'LF12345681',
+            name: 'Sneha Reddy',
+            amount: 400000,
+            status: 'APPROVED',
+            score: 78,
+            date: '2024-01-14',
+            branch: 'Chennai'
+          },
+          {
+            id: 'LF12345682',
+            name: 'Vikram Singh',
+            amount: 600000,
+            status: 'PENDING',
+            score: 68,
+            date: '2024-01-13',
+            branch: 'Pune'
+          }
+        ]
+      });
+      setLoading(false);
+    }, 1000);
+  }, [selectedPeriod]);
+
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'approved': return 'bg-green-100 text-green-800';
+      case 'rejected': return 'bg-red-100 text-red-800';
+      case 'pending': return 'bg-yellow-100 text-yellow-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'approved': return <CheckCircle className="w-4 h-4" />;
+      case 'rejected': return <XCircle className="w-4 h-4" />;
+      case 'pending': return <Clock className="w-4 h-4" />;
+      default: return <AlertTriangle className="w-4 h-4" />;
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="p-6">
+        <div className="animate-pulse space-y-6">
+          <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!stats) return null;
 
   return (
-    <div className="p-6">
-      <div className="max-w-7xl mx-auto space-y-8">
-        
-        {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">{t('dashboard') || 'Dashboard Overview'}</h1>
-            <p className="text-gray-600 mt-1">{t('welcomeBack') || "Welcome back! Here's what's happening with your loans today."}</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="gap-2"
-              onClick={() => {
-                const thirtyDaysAgo = new Date();
-                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-                alert(`Filtering data from ${thirtyDaysAgo.toLocaleDateString()} to ${new Date().toLocaleDateString()}`);
-              }}
-            >
-              <Calendar className="h-4 w-4" />
-              Last 30 days
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="gap-2"
-              onClick={() => {
-                const filterOptions = [
-                  'Credit Score Range',
-                  'Loan Amount Range', 
-                  'Application Date',
-                  'Employment Type',
-                  'Income Range'
-                ];
-                alert(`Available Filters:\n${filterOptions.map(f => `• ${f}`).join('\n')}`);
-              }}
-            >
-              <Filter className="h-4 w-4" />
-              Filter
-            </Button>
-            <Button className="bg-navy-600 hover:bg-navy-700 gap-2">
-              <BarChart3 className="h-4 w-4" />
-              Generate Report
-            </Button>
-          </div>
+    <div className="p-6 space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Dashboard Overview</h1>
+          <p className="text-gray-600">Monitor loan applications and performance metrics</p>
         </div>
+        <div className="flex items-center space-x-2">
+          <Button
+            variant={selectedPeriod === '7d' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setSelectedPeriod('7d')}
+          >
+            7 Days
+          </Button>
+          <Button
+            variant={selectedPeriod === '30d' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setSelectedPeriod('30d')}
+          >
+            30 Days
+          </Button>
+          <Button
+            variant={selectedPeriod === '90d' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setSelectedPeriod('90d')}
+          >
+            90 Days
+          </Button>
+        </div>
+      </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((stat, index) => (
-            <Card key={index} className="relative overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600 mb-1">{stat.title}</p>
-                    <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                    <div className="flex items-center gap-1 mt-2">
-                      {stat.trend === 'up' ? (
-                        <ArrowUpRight className="h-4 w-4 text-green-500" />
-                      ) : (
-                        <ArrowDownRight className="h-4 w-4 text-red-500" />
-                      )}
-                      <span className={`text-sm font-medium ${
-                        stat.trend === 'up' ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {stat.change}
-                      </span>
-                      <span className="text-sm text-gray-500">vs last month</span>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Applications</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalApplications.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground">
+              <span className="text-green-600">+12.5%</span> from last month
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Pending Review</CardTitle>
+            <Clock className="h-4 w-4 text-yellow-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-yellow-600">{stats.pendingApplications}</div>
+            <p className="text-xs text-muted-foreground">Requires immediate attention</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Approval Rate</CardTitle>
+            <TrendingUp className="h-4 w-4 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">{stats.approvalRate}%</div>
+            <Progress value={stats.approvalRate} className="mt-2" />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Average Score</CardTitle>
+            <BarChart3 className="h-4 w-4 text-blue-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600">{stats.averageScore}</div>
+            <p className="text-xs text-muted-foreground">AI eligibility score</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center">
+              <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
+              Approved
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-green-600 mb-2">
+              {stats.approvedApplications}
+            </div>
+            <div className="text-sm text-gray-600">
+              Total Amount: ₹{(stats.totalLoanAmount * 0.6).toLocaleString()}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center">
+              <XCircle className="w-5 h-5 text-red-600 mr-2" />
+              Rejected
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-red-600 mb-2">
+              {stats.rejectedApplications}
+            </div>
+            <div className="text-sm text-gray-600">
+              {((stats.rejectedApplications / stats.totalApplications) * 100).toFixed(1)}% of total
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center">
+              <DollarSign className="w-5 h-5 text-blue-600 mr-2" />
+              Total Loan Value
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-blue-600 mb-2">
+              ₹{(stats.totalLoanAmount / 10000000).toFixed(1)}Cr
+            </div>
+            <div className="text-sm text-gray-600">Across all applications</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <FileText className="w-5 h-5 mr-2" />
+              Recent Applications
+            </CardTitle>
+            <CardDescription>Latest loan applications submitted</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {stats.recentApplications.map((app) => (
+                <div key={app.id} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    {getStatusIcon(app.status)}
+                    <div>
+                      <div className="font-medium">{app.name}</div>
+                      <div className="text-sm text-gray-500">
+                        {app.id} • ₹{app.amount.toLocaleString()}
+                      </div>
                     </div>
                   </div>
-                  <div className={`p-3 rounded-xl ${stat.color} bg-opacity-10`}>
-                    <stat.icon className={`h-6 w-6 ${stat.color.replace('bg-', 'text-')}`} />
-                  </div>
-                </div>
-                <div className={`absolute bottom-0 left-0 h-1 w-full ${stat.color}`}></div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          {/* Recent Applications */}
-          <Card className="lg:col-span-2 border-0 shadow-lg">
-            <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-xl font-semibold">{t('recentApplications') || 'Recent Applications'}</CardTitle>
-                <Button asChild variant="ghost" size="sm" className="text-navy-600 hover:text-navy-700">
-                  <Link href="/admin/applicants">View All</Link>
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="space-y-0">
-                {recentApplications.map((app, index) => (
-                  <div key={app.id} className="flex items-center justify-between p-6 hover:bg-gray-50 transition-colors border-b last:border-b-0">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-gradient-to-br from-navy-500 to-navy-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                        {app.name.split(' ').map(n => n[0]).join('')}
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900">{app.name}</p>
-                        <p className="text-sm text-gray-500">{app.id}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-semibold text-gray-900">{app.amount}</p>
-                      <p className="text-sm text-gray-500">{app.time}</p>
-                    </div>
-                    <Badge variant={
-                      app.status === 'approved' ? 'default' : 
-                      app.status === 'pending' ? 'secondary' :
-                      app.status === 'review' ? 'outline' : 'destructive'
-                    } className={
-                      app.status === 'approved' ? 'bg-green-100 text-green-700 hover:bg-green-100' :
-                      app.status === 'pending' ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-100' :
-                      app.status === 'review' ? 'bg-blue-100 text-blue-700 hover:bg-blue-100' :
-                      'bg-red-100 text-red-700 hover:bg-red-100'
-                    }>
+                  <div className="text-right">
+                    <Badge className={getStatusColor(app.status)}>
                       {app.status}
                     </Badge>
+                    <div className="text-sm text-gray-500 mt-1">Score: {app.score}</div>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Quick Actions & Analytics */}
-          <div className="space-y-6">
-            
-            {/* Quick Actions */}
-            <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold">{t('quickActions') || 'Quick Actions'}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Button asChild className="w-full justify-start gap-3 bg-navy-600 hover:bg-navy-700">
-                  <Link href="/admin/upload">
-                    <FileText className="h-4 w-4" />
-                    Upload Documents
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" className="w-full justify-start gap-3">
-                  <Link href="/admin/applicants">
-                    <Users className="h-4 w-4" />
-                    View Applicants
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" className="w-full justify-start gap-3">
-                  <Link href="/admin/reports">
-                    <BarChart3 className="h-4 w-4" />
-                    Generate Report
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" className="w-full justify-start gap-3">
-                  <Link href="/admin/system-health">
-                    <Activity className="h-4 w-4" />
-                    System Health
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Performance Metrics */}
-            <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold">{t('performance') || 'Performance'}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span className="text-gray-600">Approval Rate</span>
-                    <span className="font-medium">87%</span>
-                  </div>
-                  <Progress value={87} className="h-2" />
                 </div>
-                <div>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span className="text-gray-600">Processing Speed</span>
-                    <span className="font-medium">92%</span>
-                  </div>
-                  <Progress value={92} className="h-2" />
-                </div>
-                <div>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span className="text-gray-600">Customer Satisfaction</span>
-                    <span className="font-medium">95%</span>
-                  </div>
-                  <Progress value={95} className="h-2" />
-                </div>
-              </CardContent>
-            </Card>
+              ))}
+            </div>
+            <Button variant="outline" className="w-full mt-4" asChild>
+              <Link href="/admin/applicants">View All Applications</Link>
+            </Button>
+          </CardContent>
+        </Card>
 
-          </div>
-        </div>
-
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <MapPin className="w-5 h-5 mr-2" />
+              Applications by Branch
+            </CardTitle>
+            <CardDescription>Performance across different locations</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {Object.entries(stats.applicationsByBranch).map(([branch, count]) => (
+                <div key={branch} className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium">{branch}</span>
+                    <span className="text-sm text-gray-500">{count} applications</span>
+                  </div>
+                  <Progress 
+                    value={(count / Math.max(...Object.values(stats.applicationsByBranch))) * 100} 
+                    className="h-2"
+                  />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Quick Actions</CardTitle>
+          <CardDescription>Common administrative tasks</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Button className="h-20 flex flex-col items-center justify-center" asChild>
+              <Link href="/admin/applicants">
+                <Users className="w-6 h-6 mb-2" />
+                View Applicants
+              </Link>
+            </Button>
+            <Button variant="outline" className="h-20 flex flex-col items-center justify-center" asChild>
+              <Link href="/admin/reports">
+                <FileText className="w-6 h-6 mb-2" />
+                Generate Report
+              </Link>
+            </Button>
+            <Button variant="outline" className="h-20 flex flex-col items-center justify-center">
+              <PieChart className="w-6 h-6 mb-2" />
+              Analytics
+            </Button>
+            <Button variant="outline" className="h-20 flex flex-col items-center justify-center" asChild>
+              <Link href="/admin/settings">
+                <AlertTriangle className="w-6 h-6 mb-2" />
+                Settings
+              </Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

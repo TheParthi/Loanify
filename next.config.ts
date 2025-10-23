@@ -8,6 +8,14 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  webpack: (config: any) => {
+    // Handle PDF.js worker
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      'pdfjs-dist/build/pdf.worker.js': 'pdfjs-dist/build/pdf.worker.min.js',
+    };
+    return config;
+  },
   images: {
     remotePatterns: [
       {

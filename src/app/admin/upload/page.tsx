@@ -131,23 +131,12 @@ export default function DocumentUpload() {
 
     setFiles(prev => [...prev, ...newFiles]);
 
-    // Simulate Firebase upload with metadata saving
+    // Fast upload simulation
     newFiles.forEach(file => {
       const interval = setInterval(() => {
         setFiles(prev => prev.map(f => {
           if (f.id === file.id) {
-            const newProgress = Math.min(f.progress + Math.random() * 30, 100);
-            if (newProgress === 100) {
-              // Simulate saving to Firestore
-              const metadata = {
-                applicantName,
-                loanType: selectedLoanType,
-                documentType: selectedDocType,
-                fileURL: `https://storage.firebase.com/${file.id}`,
-                uploadTime: new Date().toISOString()
-              };
-              console.log('Saved to Firestore:', metadata);
-            }
+            const newProgress = Math.min(f.progress + 50, 100); // Faster progress
             return {
               ...f,
               progress: newProgress,
@@ -156,9 +145,9 @@ export default function DocumentUpload() {
           }
           return f;
         }));
-      }, 500);
+      }, 200); // Faster updates
 
-      setTimeout(() => clearInterval(interval), 3000);
+      setTimeout(() => clearInterval(interval), 800); // Complete in 800ms
     });
   }, [selectedDocType, applicantName, selectedLoanType]);
 
@@ -272,15 +261,14 @@ export default function DocumentUpload() {
                 setShowProcessingModal(true);
                 
                 try {
-                  // Get the actual files from the completed uploads
-                  const filesToProcess = completedFiles
-                    .filter(fileData => fileData.file) // Only process files that have the actual File object
-                    .map(fileData => ({
-                      file: fileData.file!,
-                      type: fileData.type
-                    }));
+                  // Validate that we have actual uploaded files with content
+                  const validFiles = completedFiles.filter(fileData => 
+                    fileData.file && 
+                    fileData.file.size > 0 && 
+                    fileData.status === 'completed'
+                  );
                   
-                  if (filesToProcess.length === 0) {
+                  if (validFiles.length === 0) {
                     // Show in-app notification
                     const notification = document.createElement('div');
                     notification.className = 'fixed top-4 right-4 z-50 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 max-w-sm';
@@ -288,7 +276,7 @@ export default function DocumentUpload() {
                       <svg class="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
                       </svg>
-                      <span class="text-sm font-medium">No valid files found for processing. Please re-upload your documents</span>
+                      <span class="text-sm font-medium">No valid documents uploaded. Please upload actual document files</span>
                       <button onclick="this.parentElement.remove()" class="ml-2 text-red-600 hover:text-red-800">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -301,8 +289,14 @@ export default function DocumentUpload() {
                     return;
                   }
                   
-                  // Process documents with realistic analysis
-                  const result = await simulateDocumentAnalysis(filesToProcess, applicantName);
+                  // Map valid files for processing
+                  const filesToProcess = validFiles.map(fileData => ({
+                    file: fileData.file!,
+                    type: fileData.type
+                  }));
+                  
+                  // Process documents with real analysis - no mock data
+                  const result = await realDocumentAnalysis(filesToProcess, applicantName);
                   
                   setProcessingResult(result);
                   setIsProcessing(false);
@@ -567,228 +561,93 @@ export default function DocumentUpload() {
 
 }
 
-// Real document analysis with OCR
-async function simulateDocumentAnalysis(files: Array<{file: File, type: string}>, applicantName: string): Promise<ProcessingResult> {
-  // Import Tesseract dynamically
-  const { createWorker } = await import('tesseract.js');
+// RBI-Compliant Document Analysis with AI Deduction
+async function realDocumentAnalysis(files: Array<{file: File, type: string}>, applicantName: string): Promise<ProcessingResult> {
+  const { RBIDocumentValidator } = await import('@/lib/rbi-document-validator');
+  const validator = new RBIDocumentValidator();
   
   const documentAnalyses = await Promise.all(files.map(async ({file, type}) => {
     try {
-      // Initialize OCR worker
-      const worker = await createWorker('eng');
+      // Perform RBI-compliant analysis
+      const analysis = await validator.performRBICompliantAnalysis(file, type as any);
       
-      // Perform OCR on the actual image
-      const { data } = await worker.recognize(file);
-      const extractedText = data.text.toUpperCase();
-      const ocrConfidence = data.confidence;
-      
-      await worker.terminate();
-      
-      // Analyze file properties
-      const fileSize = file.size;
-      const fileType = file.type;
-      const fileName = file.name.toLowerCase();
-      
-      let confidence = Math.max(20, ocrConfidence);
-      const documentIssues: string[] = [];
-      let rbiCompliance = true;
-      const validationResults: any[] = [];
-    
-      // File quality checks
-      if (fileSize < 50000) {
-        documentIssues.push('File size is very small - may indicate poor quality scan');
-        confidence -= 15;
-      }
-      
-      if (!fileType.startsWith('image/')) {
-        documentIssues.push('Only image files are supported for OCR analysis');
-        confidence -= 30;
-        rbiCompliance = false;
-      }
-      
-      // Check if text was actually extracted
-      if (extractedText.length < 10) {
-        documentIssues.push('Very little text detected - image may be unclear or not a document');
-        confidence -= 40;
-        rbiCompliance = false;
-      }
-    
-      // Document type specific validation based on actual OCR text
-      switch (type) {
-        case 'aadhar':
-          const aadharPattern = /\b\d{4}\s?\d{4}\s?\d{4}\b/;
-          const aadharMatch = extractedText.match(aadharPattern);
-          const hasGovHeader = extractedText.includes('GOVERNMENT OF INDIA') || extractedText.includes('GOVT OF INDIA');
-          const hasUID = extractedText.includes('UNIQUE IDENTIFICATION');
-          
-          validationResults.push(
-            { field: 'Aadhar Number', value: aadharMatch ? aadharMatch[0] : 'Not found in text', isValid: !!aadharMatch, confidence: aadharMatch ? 90 : 10 },
-            { field: 'Government Header', value: hasGovHeader ? 'Found' : 'Not found', isValid: hasGovHeader, confidence: hasGovHeader ? 85 : 10 }
-          );
-          
-          if (!aadharMatch) {
-            documentIssues.push('No Aadhar number pattern detected in the image');
-            rbiCompliance = false;
-          }
-          if (!hasGovHeader && !hasUID) {
-            documentIssues.push('Government of India header not found - may not be an Aadhar card');
-            rbiCompliance = false;
-          }
-          break;
-          
-        case 'pan':
-          const panPattern = /\b[A-Z]{5}\d{4}[A-Z]\b/;
-          const panMatch = extractedText.match(panPattern);
-          const hasIncomeHeader = extractedText.includes('INCOME TAX') || extractedText.includes('TAX DEPARTMENT');
-          const hasPermanent = extractedText.includes('PERMANENT ACCOUNT');
-          
-          validationResults.push(
-            { field: 'PAN Number', value: panMatch ? panMatch[0] : 'Not found in text', isValid: !!panMatch, confidence: panMatch ? 95 : 10 },
-            { field: 'Income Tax Header', value: hasIncomeHeader ? 'Found' : 'Not found', isValid: hasIncomeHeader, confidence: hasIncomeHeader ? 80 : 10 }
-          );
-          
-          if (!panMatch) {
-            documentIssues.push('No PAN number pattern detected in the image');
-            rbiCompliance = false;
-          }
-          if (!hasIncomeHeader && !hasPermanent) {
-            documentIssues.push('Income Tax Department header not found - may not be a PAN card');
-            rbiCompliance = false;
-          }
-          break;
-        
-        case 'salary':
-          const salaryKeywords = ['SALARY', 'PAY SLIP', 'PAYSLIP', 'BASIC PAY', 'GROSS SALARY', 'NET PAY'];
-          const hasSalaryKeyword = salaryKeywords.some(keyword => extractedText.includes(keyword));
-          const amountPattern = /₹\s?[\d,]+\.?\d*/;
-          const amountMatch = extractedText.match(amountPattern);
-          
-          validationResults.push(
-            { field: 'Salary Document', value: hasSalaryKeyword ? 'Detected' : 'Not detected', isValid: hasSalaryKeyword, confidence: hasSalaryKeyword ? 75 : 10 },
-            { field: 'Salary Amount', value: amountMatch ? amountMatch[0] : 'Not found', isValid: !!amountMatch, confidence: amountMatch ? 70 : 10 }
-          );
-          
-          if (!hasSalaryKeyword) {
-            documentIssues.push('No salary-related keywords found - may not be a salary slip');
-            rbiCompliance = false;
-          }
-          break;
-          
-        case 'bank':
-          const bankKeywords = ['BANK STATEMENT', 'ACCOUNT STATEMENT', 'STATEMENT OF ACCOUNT'];
-          const hasBankKeyword = bankKeywords.some(keyword => extractedText.includes(keyword));
-          const accountPattern = /\b\d{9,18}\b/;
-          const accountMatch = extractedText.match(accountPattern);
-          
-          validationResults.push(
-            { field: 'Bank Statement', value: hasBankKeyword ? 'Detected' : 'Not detected', isValid: hasBankKeyword, confidence: hasBankKeyword ? 80 : 10 },
-            { field: 'Account Number', value: accountMatch ? accountMatch[0] : 'Not found', isValid: !!accountMatch, confidence: accountMatch ? 70 : 10 }
-          );
-          
-          if (!hasBankKeyword) {
-            documentIssues.push('No bank statement keywords found - may not be a bank statement');
-            rbiCompliance = false;
-          }
-          break;
-        
-        case 'photo':
-          // For photos, we don't need OCR validation, just file checks
-          const photoValid = fileType.startsWith('image/') && fileSize > 20000 && fileSize < 2000000;
-          validationResults.push(
-            { field: 'Photo Quality', value: photoValid ? 'Good' : 'Poor', isValid: photoValid, confidence: photoValid ? 90 : 40 },
-            { field: 'File Format', value: fileType, isValid: fileType.startsWith('image/'), confidence: fileType.startsWith('image/') ? 95 : 0 }
-          );
-          if (!photoValid) {
-            documentIssues.push('Photo quality is poor or file format is not suitable');
-          }
-          break;
-          
-        default:
-          validationResults.push(
-            { field: 'Document Type', value: 'Unknown', isValid: false, confidence: 0 }
-          );
-          documentIssues.push('Document type not recognized for validation');
-          rbiCompliance = false;
-      }
-    
-      // Final confidence adjustment based on validation success
-      const validationSuccess = validationResults.filter(v => v.isValid).length / validationResults.length;
-      confidence = Math.max(10, Math.min(98, confidence * validationSuccess));
+      // Convert to expected format
+      const validationResults = analysis.validationResults.map(result => ({
+        field: result.field,
+        value: result.value,
+        isValid: result.isValid,
+        confidence: result.isValid ? 95 : 10
+      }));
       
       return {
         documentType: type,
-        extractedText: extractedText.substring(0, 200) + (extractedText.length > 200 ? '...' : ''),
-        confidence: Math.round(confidence),
+        extractedText: `RBI Analysis: ${analysis.recommendation}\nExtracted: ${Object.entries(analysis.extractedData).map(([k,v]) => `${k}: ${v}`).join(', ')}`,
+        confidence: analysis.confidence,
         validationResults,
-        rbiCompliance,
-        issues: documentIssues
+        rbiCompliant: analysis.rbiCompliant,
+        issues: analysis.issues,
+        recommendation: analysis.recommendation
       };
+
       
     } catch (error) {
-      console.error('OCR processing failed:', error);
+      console.error('RBI Document analysis failed:', error);
       return {
         documentType: type,
-        extractedText: 'OCR processing failed',
+        extractedText: 'RBI Analysis failed',
         confidence: 0,
         validationResults: [
-          { field: 'OCR Processing', value: 'Failed', isValid: false, confidence: 0 }
+          { field: 'Document Processing', value: 'Failed', isValid: false, confidence: 0 }
         ],
-        rbiCompliance: false,
-        issues: ['Failed to process document with OCR - please ensure image is clear and readable']
+        rbiCompliant: false,
+        issues: [error.message || 'Failed to process document with RBI validator'],
+        recommendation: 'REJECT'
       };
     }
   }));
   
-  // Add processing delay for realism
-  await new Promise(resolve => setTimeout(resolve, 2000));
+  // Cleanup validator
+  await validator.cleanup();
+  
+  // Minimal processing delay
+  await new Promise(resolve => setTimeout(resolve, 500));
   
   const averageOcrAccuracy = documentAnalyses.reduce((sum, analysis) => sum + analysis.confidence, 0) / documentAnalyses.length;
   const rbiCompliance = documentAnalyses.every(analysis => analysis.rbiCompliance);
   const allIssues = [...new Set(documentAnalyses.flatMap(analysis => analysis.issues))];
   
-  // Calculate realistic credit score based on document quality
-  let creditScore = 650;
+  // RBI-Based Credit Scoring and Decision Making
+  const approvedCount = documentAnalyses.filter(doc => doc.recommendation === 'APPROVE').length;
+  const rejectedCount = documentAnalyses.filter(doc => doc.recommendation === 'REJECT').length;
+  const reviewCount = documentAnalyses.filter(doc => doc.recommendation === 'MANUAL_REVIEW').length;
   
-  // OCR accuracy impact
-  if (averageOcrAccuracy > 90) creditScore += 60;
-  else if (averageOcrAccuracy > 80) creditScore += 40;
-  else if (averageOcrAccuracy > 70) creditScore += 20;
-  else if (averageOcrAccuracy > 60) creditScore += 5;
-  else creditScore -= 30;
+  // Calculate credit score based on RBI analysis
+  let creditScore = 300; // Base score
   
-  // RBI compliance impact
-  if (rbiCompliance) creditScore += 40;
-  else creditScore -= 60;
+  // Award points for approved documents
+  creditScore += approvedCount * 120;
+  creditScore += reviewCount * 60;
   
-  // Document validation success rate
-  const totalValidations = documentAnalyses.reduce((sum, analysis) => sum + analysis.validationResults.length, 0);
-  const successfulValidations = documentAnalyses.reduce((sum, analysis) => 
-    sum + analysis.validationResults.filter(result => result.isValid).length, 0
-  );
-  const validationRate = totalValidations > 0 ? successfulValidations / totalValidations : 0;
+  // Penalty for rejected documents
+  creditScore -= rejectedCount * 100;
   
-  if (validationRate > 0.9) creditScore += 50;
-  else if (validationRate > 0.8) creditScore += 35;
-  else if (validationRate > 0.6) creditScore += 15;
-  else if (validationRate > 0.4) creditScore -= 10;
-  else creditScore -= 40;
+  // RBI compliance bonus
+  if (rbiCompliance) creditScore += 80;
   
-  // Issues penalty
-  creditScore -= Math.min(allIssues.length * 15, 100);
+  // OCR quality bonus
+  creditScore += Math.round(averageOcrAccuracy * 2);
   
-  // Ensure realistic range
+  // Cap the score
   creditScore = Math.max(300, Math.min(850, creditScore));
   
-  // Determine decision based on comprehensive analysis
-  let decision: 'APPROVED' | 'REJECTED' | 'PENDING' = 'PENDING';
+  // Final decision based on RBI recommendations
+  let decision: 'APPROVED' | 'REJECTED' | 'PENDING' = 'REJECTED';
   
-  if (averageOcrAccuracy < 40 || !rbiCompliance || validationRate < 0.3) {
+  if (rejectedCount > 0) {
     decision = 'REJECTED';
-  } else if (averageOcrAccuracy > 85 && rbiCompliance && validationRate > 0.8 && allIssues.length <= 1) {
+  } else if (approvedCount === documentAnalyses.length) {
     decision = 'APPROVED';
-  } else if (averageOcrAccuracy > 75 && rbiCompliance && validationRate > 0.7) {
-    decision = 'APPROVED';
-  } else if (averageOcrAccuracy > 60 && validationRate > 0.5) {
+  } else if (reviewCount > 0) {
     decision = 'PENDING';
   } else {
     decision = 'REJECTED';

@@ -1,0 +1,5 @@
+/home/user/studio/backend/src/main/java/com/studio/backend/repository/ApplicantRepository.java
+/home/user/studio/backend/src/main/java/com/studio/backend/model/Applicant.java
+/home/user/studio/backend/src/main/java/com/studio/backend/BackendApplication.java
+/home/user/studio/backend/src/main/java/com/studio/backend/controller/ApplicantController.java
+/home/user/studio/backend/src/main/java/com/studio/backend/service/ApplicantService.java

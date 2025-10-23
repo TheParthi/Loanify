@@ -1,0 +1,5 @@
+com/studio/backend/BackendApplication.class
+com/studio/backend/model/Applicant.class
+com/studio/backend/controller/ApplicantController.class
+com/studio/backend/repository/ApplicantRepository.class
+com/studio/backend/service/ApplicantService.class

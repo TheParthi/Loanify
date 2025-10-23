@@ -103,13 +103,20 @@ export class PDFGenerator {
     this.doc.setFillColor(13, 71, 161);
     this.doc.rect(0, 0, this.pageWidth, 60, 'F');
     
-    // Company logo area
+    // Company logo area - Professional logo placement
     this.doc.setFillColor(255, 255, 255);
-    this.doc.circle(25, 30, 12);
+    this.doc.roundedRect(15, 18, 24, 24, 3, 3, 'F');
+    
+    // Logo design
     this.doc.setTextColor(13, 71, 161);
-    this.doc.setFontSize(16);
+    this.doc.setFontSize(18);
     this.doc.setFont('helvetica', 'bold');
-    this.doc.text('L', 22, 33);
+    this.doc.text('L', 24, 32);
+    
+    // Logo accent
+    this.doc.setDrawColor(34, 197, 94);
+    this.doc.setLineWidth(2);
+    this.doc.circle(27, 30, 8, 'S');
     
     // Company name and title
     this.doc.setTextColor(255, 255, 255);
@@ -200,10 +207,19 @@ export class PDFGenerator {
     this.doc.setFillColor(13, 71, 161);
     this.doc.rect(0, 0, this.pageWidth, 25, 'F');
     
+    // Mini logo in header
+    this.doc.setFillColor(255, 255, 255);
+    this.doc.roundedRect(8, 8, 12, 12, 2, 2, 'F');
+    this.doc.setTextColor(13, 71, 161);
+    this.doc.setFontSize(10);
+    this.doc.setFont('helvetica', 'bold');
+    this.doc.text('L', 13, 16);
+    
+    // Header text
     this.doc.setTextColor(255, 255, 255);
     this.doc.setFontSize(14);
     this.doc.setFont('helvetica', 'bold');
-    this.doc.text('LOANIFY NBFC', this.margin, 15);
+    this.doc.text('LOANIFY NBFC', 25, 15);
     
     this.doc.setFontSize(8);
     this.doc.setFont('helvetica', 'normal');
