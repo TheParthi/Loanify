@@ -34,7 +34,7 @@ export default function StaffDashboard() {
       <div className="w-64 bg-blue-50 border-r border-blue-100 flex flex-col">
         <div className="p-6 border-b border-blue-100">
           <div className="flex items-center gap-3">
-            <Image src="/logo.png" alt="Loanify" width={32} height={32} className="h-8 w-8" />
+            <Image src="/logo.png" alt="Loanify" width={320} height={320} className="h-80 w-80" />
             <div>
               <h2 className="font-bold text-gray-900">Loanify</h2>
               <p className="text-xs text-gray-600">Staff Portal</p>

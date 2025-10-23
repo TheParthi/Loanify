@@ -8,9 +8,9 @@ export function Logo({ className }: { className?: string }) {
       <Image 
         src="https://i.postimg.cc/jjf05QN2/Create-a-modern-minimalist-logo-icon-for-a-fintech-AI-platform-focused-on-smart-loan-approvals-and.png" 
         alt="Loanify Logo" 
-        width={40} 
-        height={40} 
-        className="h-10 w-10 object-contain"
+        width={400} 
+        height={400} 
+        className="h-100 w-100 object-contain"
       />
       <div className="flex flex-col">
         <span className="text-lg font-bold">Loanify</span>

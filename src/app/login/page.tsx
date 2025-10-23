@@ -86,8 +86,14 @@ export default function AdminLogin() {
           <div className="w-full max-w-md">
             <Card className="shadow-2xl border-0 bg-white">
               <CardHeader className="text-center pb-8 pt-12">
-                <div className="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center" style={{ backgroundColor: '#0047AB' }}>
-                  <Shield className="h-10 w-10 text-white" />
+                <div className="flex justify-center mb-4">
+                  <Image 
+                    src="https://i.postimg.cc/9Q09JtXp/Create-a-modern-minimalist-logo-icon-for-a-fintech-AI-platform-focused-on-smart-loan-approvals-and.png" 
+                    alt="Loanify" 
+                    width={600} 
+                    height={600} 
+                    className="w-150 h-150 object-contain" 
+                  />
                 </div>
                 <h2 className="text-3xl font-bold mb-2" style={{ color: '#1E1E1E' }}>
                   Admin Login
