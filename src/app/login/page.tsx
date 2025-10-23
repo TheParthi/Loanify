@@ -59,7 +59,7 @@ export default function AdminLogin() {
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-3">
               <Image 
-                src="https://i.postimg.cc/jjf05QN2/Create-a-modern-minimalist-logo-icon-for-a-fintech-AI-platform-focused-on-smart-loan-approvals-and.png"
+                src="https://i.postimg.cc/MGyDGd6p/Create-a-modern-minimalist-logo-icon-for-a-fintech-AI-platform-focused-on-smart-loan-approvals-and.png"
                 alt="Loanify Logo"
                 width={40}
                 height={40}
@@ -80,19 +80,19 @@ export default function AdminLogin() {
         </div>
       </header>
 
-      <div className="flex min-h-screen">
+      <div className="flex min-h-[calc(100vh-80px)]">
         {/* Left Side - Login Form */}
         <div className="flex-1 flex items-center justify-center p-8">
           <div className="w-full max-w-md">
-            <Card className="shadow-2xl border-0 bg-white">
-              <CardHeader className="text-center pb-8 pt-12">
-                <div className="flex justify-center mb-4">
+            <Card className="shadow-2xl border-0 bg-white rounded-2xl">
+              <CardHeader className="text-center pb-6 pt-8">
+                <div className="flex justify-center mb-6">
                   <Image 
-                    src="https://i.postimg.cc/9Q09JtXp/Create-a-modern-minimalist-logo-icon-for-a-fintech-AI-platform-focused-on-smart-loan-approvals-and.png" 
+                    src="https://i.postimg.cc/MGyDGd6p/Create-a-modern-minimalist-logo-icon-for-a-fintech-AI-platform-focused-on-smart-loan-approvals-and.png" 
                     alt="Loanify" 
-                    width={600} 
-                    height={600} 
-                    className="w-[600px] h-[600px] object-contain" 
+                    width={80} 
+                    height={80} 
+                    className="w-20 h-20 object-contain" 
                   />
                 </div>
                 <h2 className="text-3xl font-bold mb-2" style={{ color: '#1E1E1E' }}>
@@ -103,7 +103,7 @@ export default function AdminLogin() {
                 </p>
               </CardHeader>
               
-              <CardContent className="px-8 pb-12">
+              <CardContent className="px-8 pb-8">
                 <form onSubmit={handleLogin} className="space-y-6">
                   <div className="space-y-2">
                     <label className="text-sm font-semibold" style={{ color: '#1E1E1E' }}>
@@ -177,7 +177,7 @@ export default function AdminLogin() {
                   <Button
                     type="submit"
                     disabled={loading}
-                    className="w-full h-12 text-lg font-semibold text-white transition-all duration-200 hover:shadow-lg"
+                    className="w-full h-12 text-lg font-semibold text-white transition-all duration-200 hover:shadow-lg rounded-xl"
                     style={{ 
                       backgroundColor: '#0047AB',
                       borderColor: '#0047AB'
@@ -186,8 +186,6 @@ export default function AdminLogin() {
                     {loading ? 'Signing In...' : 'Sign In to Dashboard'}
                   </Button>
                 </form>
-
-
               </CardContent>
             </Card>
           </div>

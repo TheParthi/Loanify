@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -794,9 +795,13 @@ export default function AdminDashboard() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-8">
               <Link href="/" className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg bg-gradient-to-br from-blue-600 to-blue-800">
-                  <span className="text-white font-bold text-xl">L</span>
-                </div>
+                <Image 
+                  src="https://i.postimg.cc/MGyDGd6p/Create-a-modern-minimalist-logo-icon-for-a-fintech-AI-platform-focused-on-smart-loan-approvals-and.png" 
+                  alt="Loanify Logo" 
+                  width={48} 
+                  height={48} 
+                  className="w-12 h-12 object-contain"
+                />
                 <div>
                   <h1 className="text-xl font-black bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">Loanify NBFC</h1>
                   <p className="text-xs font-semibold text-gray-500">Professional Admin Suite</p>

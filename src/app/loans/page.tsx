@@ -158,7 +158,7 @@ export default function LoansPage() {
           <div className="flex items-center justify-between h-20">
             <Link href="/" className="flex items-center gap-4">
               <Image 
-                src="https://i.postimg.cc/jjf05QN2/Create-a-modern-minimalist-logo-icon-for-a-fintech-AI-platform-focused-on-smart-loan-approvals-and.png"
+                src="https://i.postimg.cc/MGyDGd6p/Create-a-modern-minimalist-logo-icon-for-a-fintech-AI-platform-focused-on-smart-loan-approvals-and.png"
                 alt="Loanify Logo"
                 width={56}
                 height={56}

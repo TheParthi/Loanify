@@ -83,10 +83,18 @@ export default function ChatPage() {
       id: 1,
       type: 'bot',
       message: 'Welcome to Loanify NBFC! I\'m your dedicated AI assistant specializing in RBI-compliant loan solutions. I can help you with:\n\n• Loan eligibility assessment\n• Interest rates & EMI calculations\n• Document requirements\n• Application process guidance\n• RBI compliance information\n\nWhat specific loan assistance do you need today?',
-      time: new Date().toLocaleTimeString(),
+      time: '',
       category: 'welcome'
     }
   ]);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    setMessages(prev => prev.map(msg => 
+      msg.time === '' ? { ...msg, time: new Date().toLocaleTimeString() } : msg
+    ));
+  }, []);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -125,7 +133,7 @@ export default function ChatPage() {
       id: Date.now(),
       type: 'user' as const,
       message: inputMessage,
-      time: new Date().toLocaleTimeString(),
+      time: isClient ? new Date().toLocaleTimeString() : '',
       category: 'user'
     };
 
@@ -141,7 +149,7 @@ export default function ChatPage() {
         id: Date.now() + 1,
         type: 'bot' as const,
         message: aiResponse.message,
-        time: new Date().toLocaleTimeString(),
+        time: isClient ? new Date().toLocaleTimeString() : '',
         category: aiResponse.category
       };
       setMessages(prev => [...prev, botResponse]);
@@ -300,7 +308,7 @@ export default function ChatPage() {
           <div className="flex items-center justify-between h-20">
             <Link href="/" className="flex items-center gap-4">
               <Image 
-                src="https://i.postimg.cc/jjf05QN2/Create-a-modern-minimalist-logo-icon-for-a-fintech-AI-platform-focused-on-smart-loan-approvals-and.png"
+                src="https://i.postimg.cc/MGyDGd6p/Create-a-modern-minimalist-logo-icon-for-a-fintech-AI-platform-focused-on-smart-loan-approvals-and.png"
                 alt="Loanify Logo"
                 width={56}
                 height={56}
@@ -331,7 +339,7 @@ export default function ChatPage() {
       <div className="container mx-auto px-6 py-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-black mb-4" style={{ color: '#1E1E1E' }}>NBFC Loan Assistant</h1>
+            <h1 className="text-4xl font-black mb-4" style={{ color: '#1E1E1E' }}>Loanify Loan Bot</h1>
             <p className="text-lg font-medium" style={{ color: '#C9D1D9' }}>
               RBI-Compliant Loan Solutions with AI-Powered Guidance
             </p>
@@ -417,12 +425,14 @@ export default function ChatPage() {
                             <div className="text-sm leading-relaxed whitespace-pre-line">
                               {msg.message}
                             </div>
-                            <p className={`text-xs mt-4 flex items-center gap-1 ${
-                              msg.type === 'user' ? 'text-blue-100' : 'text-gray-500'
-                            }`}>
-                              <Clock className="h-3 w-3" />
-                              {msg.time}
-                            </p>
+                            {isClient && msg.time && (
+                              <p className={`text-xs mt-4 flex items-center gap-1 ${
+                                msg.type === 'user' ? 'text-blue-100' : 'text-gray-500'
+                              }`}>
+                                <Clock className="h-3 w-3" />
+                                {msg.time}
+                              </p>
+                            )}
                           </div>
                         </div>
                       </div>

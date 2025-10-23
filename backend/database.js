@@ -166,6 +166,19 @@ class Database {
       });
     });
   }
+
+  updateLoanStatus(id, status, notes) {
+    return new Promise((resolve, reject) => {
+      this.db.run(`
+        UPDATE loan_requests 
+        SET status = ?, agent_decision = ?
+        WHERE id = ?
+      `, [status, notes, id], function(err) {
+        if (err) reject(err);
+        else resolve(this.changes);
+      });
+    });
+  }
 }
 
 module.exports = Database;

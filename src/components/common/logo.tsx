@@ -4,17 +4,17 @@ import Image from "next/image";
 
 export function Logo({ className }: { className?: string }) {
   return (
-    <Link href="/" className={cn("flex items-center gap-2 text-primary font-semibold", className)}>
+    <Link href="/" className={cn("flex items-center gap-3 text-primary font-semibold", className)}>
       <Image 
-        src="https://i.postimg.cc/jjf05QN2/Create-a-modern-minimalist-logo-icon-for-a-fintech-AI-platform-focused-on-smart-loan-approvals-and.png" 
+        src="https://i.postimg.cc/MGyDGd6p/Create-a-modern-minimalist-logo-icon-for-a-fintech-AI-platform-focused-on-smart-loan-approvals-and.png" 
         alt="Loanify Logo" 
-        width={400} 
-        height={400} 
-        className="h-100 w-100 object-contain"
+        width={48} 
+        height={48} 
+        className="h-12 w-12 object-contain"
       />
       <div className="flex flex-col">
-        <span className="text-lg font-bold">Loanify</span>
-        <span className="text-xs text-muted-foreground">Simplify Loan Approvals with Intelligence</span>
+        <span className="text-xl font-bold">Loanify NBFC</span>
+        <span className="text-xs text-muted-foreground">RBI Licensed • NBFC-ND-SI • Est. 2020</span>
       </div>
     </Link>
   );

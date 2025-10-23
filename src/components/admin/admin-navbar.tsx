@@ -50,16 +50,16 @@ export function AdminNavbar() {
           
           {/* Logo & Brand */}
           <div className="flex items-center gap-4">
-            <Link href="/admin" className="flex items-center gap-0">
+            <Link href="/admin" className="flex items-center gap-3">
               <Image 
-                src="https://i.postimg.cc/9Q09JtXp/Create-a-modern-minimalist-logo-icon-for-a-fintech-AI-platform-focused-on-smart-loan-approvals-and.png" 
+                src="https://i.postimg.cc/MGyDGd6p/Create-a-modern-minimalist-logo-icon-for-a-fintech-AI-platform-focused-on-smart-loan-approvals-and.png" 
                 alt="Loanify Logo" 
-                width={160} 
-                height={160} 
-                className="w-40 h-40 object-contain" 
+                width={40} 
+                height={40} 
+                className="w-10 h-10 object-contain" 
               />
               <div>
-                <span className="text-xl font-bold text-slate-900">Loanify</span>
+                <span className="text-xl font-bold text-slate-900">Loanify NBFC</span>
                 <span className="block text-xs text-amber-600 font-medium">Admin Portal</span>
               </div>
             </Link>
