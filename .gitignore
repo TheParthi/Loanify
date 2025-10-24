@@ -1,15 +1,21 @@
 # Dependencies
 node_modules/
-.pnp
+/.pnp
 .pnp.js
 
 # Production
 /build
+/dist
 /out
+
+# Next.js
 /.next/
+/out/
 
 # Firebase
 .firebase/
+firebase-debug.log
+.firebaserc
 
 # Environment variables
 .env
@@ -35,7 +41,13 @@ coverage/
 # IDE
 .vscode/
 .idea/
+*.swp
+*.swo
 
 # OS
 .DS_Store
 Thumbs.db
+
+# Cache
+.cache/
+*.tsbuildinfo
