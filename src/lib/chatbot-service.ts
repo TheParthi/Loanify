@@ -11,13 +11,15 @@ interface ChatResponse {
   data?: any;
 }
 
+import { MasterAgent, SalesAgent, VerificationAgent, UnderwritingAgent, SanctionAgent } from './ai-agents';
+
 export class ChatbotService {
   private conversationState: any = {};
-  private masterAgent = new (await import('./ai-agents')).MasterAgent();
-  private salesAgent = new (await import('./ai-agents')).SalesAgent();
-  private verificationAgent = new (await import('./ai-agents')).VerificationAgent();
-  private underwritingAgent = new (await import('./ai-agents')).UnderwritingAgent();
-  private sanctionAgent = new (await import('./ai-agents')).SanctionAgent();
+  private masterAgent = new MasterAgent();
+  private salesAgent = new SalesAgent();
+  private verificationAgent = new VerificationAgent();
+  private underwritingAgent = new UnderwritingAgent();
+  private sanctionAgent = new SanctionAgent();
 
   async processMessage(message: string, history: ChatMessage[]): Promise<ChatResponse> {
     const context = this.conversationState;

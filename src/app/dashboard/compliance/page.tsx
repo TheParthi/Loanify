@@ -6,9 +6,56 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Shield, CheckCircle, AlertTriangle, XCircle, Download, FileText, Calendar, Eye, RefreshCw, Award, Building2, Scale } from 'lucide-react';
 
+interface ComplianceCheck {
+  category: string;
+  status: string;
+  score: number;
+  requirement: string;
+  actual: string;
+  lastCheck: string;
+}
+
+interface RBIReport {
+  type: string;
+  dueDate: string;
+  status: string;
+  submittedOn: string | null;
+}
+
+interface AuditFinding {
+  id: number;
+  category: string;
+  severity: string;
+  description: string;
+  status: string;
+  date: string;
+}
+
+interface RiskMetrics {
+  creditRisk?: number;
+  operationalRisk?: number;
+  marketRisk?: number;
+  liquidityRisk?: number;
+  reputationalRisk?: number;
+}
+
+interface ComplianceData {
+  overallScore?: number;
+  capitalAdequacy?: number;
+  liquidityRatio?: number;
+  npaRatio?: number;
+  leverageRatio?: number;
+  creditRiskRatio?: number;
+  operationalRisk?: number;
+  complianceChecks?: ComplianceCheck[];
+  rbiReports?: RBIReport[];
+  auditFindings?: AuditFinding[];
+  riskMetrics?: RiskMetrics;
+}
+
 export default function RBICompliance() {
   const [loading, setLoading] = useState(true);
-  const [complianceData, setComplianceData] = useState({});
+  const [complianceData, setComplianceData] = useState<ComplianceData>({});
   const [lastUpdated, setLastUpdated] = useState(new Date());
 
   useEffect(() => {
@@ -75,11 +122,11 @@ export default function RBICompliance() {
       loanAmount: 0,
       creditScore: 850,
       status: 'approved',
-      eligibilityPercentage: complianceData.overallScore,
+      eligibilityPercentage: complianceData.overallScore || 0,
       recommendedAmount: 0,
       interestRate: 0,
       emi: 0,
-      aiReport: `RBI COMPLIANCE ASSESSMENT REPORT\n\nOVERALL COMPLIANCE SCORE: ${complianceData.overallScore}%\n\nKEY METRICS\nCapital Adequacy Ratio: ${complianceData.capitalAdequacy}% (Requirement: ≥15%)\nLiquidity Coverage Ratio: ${complianceData.liquidityRatio}% (Requirement: ≥4%)\nNPA Ratio: ${complianceData.npaRatio}% (Requirement: ≤3%)\nLeverage Ratio: ${complianceData.leverageRatio}% (Requirement: ≥10%)\n\nCOMPLIANCE STATUS\n${complianceData.complianceChecks?.filter(check => check.status === 'compliant').length} Compliant Areas\n${complianceData.complianceChecks?.filter(check => check.status === 'warning').length} Areas Requiring Attention\n${complianceData.complianceChecks?.filter(check => check.status === 'non-compliant').length} Non-Compliant Areas\n\nRISK ASSESSMENT\nCredit Risk: ${complianceData.riskMetrics?.creditRisk}%\nOperational Risk: ${complianceData.riskMetrics?.operationalRisk}%\nMarket Risk: ${complianceData.riskMetrics?.marketRisk}%\nLiquidity Risk: ${complianceData.riskMetrics?.liquidityRisk}%\n\nRBI REPORTING STATUS\n${complianceData.rbiReports?.filter(report => report.status === 'submitted').length} Reports Submitted On Time\n${complianceData.rbiReports?.filter(report => report.status === 'pending').length} Reports Pending\n\nCOMPLIANCE SUMMARY\nLoanify NBFC maintains excellent compliance with RBI guidelines and regulations. All critical parameters are within acceptable limits. Regular monitoring and proactive risk management ensure continued regulatory adherence.`,
+      aiReport: `RBI COMPLIANCE ASSESSMENT REPORT\n\nOVERALL COMPLIANCE SCORE: ${complianceData.overallScore || 0}%\n\nKEY METRICS\nCapital Adequacy Ratio: ${complianceData.capitalAdequacy || 0}% (Requirement: ≥15%)\nLiquidity Coverage Ratio: ${complianceData.liquidityRatio || 0}% (Requirement: ≥4%)\nNPA Ratio: ${complianceData.npaRatio || 0}% (Requirement: ≤3%)\nLeverage Ratio: ${complianceData.leverageRatio || 0}% (Requirement: ≥10%)\n\nCOMPLIANCE STATUS\n${complianceData.complianceChecks?.filter(check => check.status === 'compliant').length || 0} Compliant Areas\n${complianceData.complianceChecks?.filter(check => check.status === 'warning').length || 0} Areas Requiring Attention\n${complianceData.complianceChecks?.filter(check => check.status === 'non-compliant').length || 0} Non-Compliant Areas\n\nRISK ASSESSMENT\nCredit Risk: ${complianceData.riskMetrics?.creditRisk || 0}%\nOperational Risk: ${complianceData.riskMetrics?.operationalRisk || 0}%\nMarket Risk: ${complianceData.riskMetrics?.marketRisk || 0}%\nLiquidity Risk: ${complianceData.riskMetrics?.liquidityRisk || 0}%\n\nRBI REPORTING STATUS\n${complianceData.rbiReports?.filter(report => report.status === 'submitted').length || 0} Reports Submitted On Time\n${complianceData.rbiReports?.filter(report => report.status === 'pending').length || 0} Reports Pending\n\nCOMPLIANCE SUMMARY\nLoanify NBFC maintains excellent compliance with RBI guidelines and regulations. All critical parameters are within acceptable limits. Regular monitoring and proactive risk management ensure continued regulatory adherence.`,
       applicationDate: new Date().toISOString(),
       tenure: '0',
       branch: 'Head Office',
@@ -92,7 +139,7 @@ export default function RBICompliance() {
     generateProfessionalReport(reportData);
   };
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case 'compliant': return { bg: '#E8F6F3', text: '#2ECC71', border: '#2ECC71' };
       case 'warning': return { bg: '#FEF3E2', text: '#F39C12', border: '#F39C12' };
@@ -101,7 +148,7 @@ export default function RBICompliance() {
     }
   };
 
-  const getStatusIcon = (status) => {
+  const getStatusIcon = (status: string) => {
     switch (status) {
       case 'compliant': return <CheckCircle className="h-4 w-4" />;
       case 'warning': return <AlertTriangle className="h-4 w-4" />;

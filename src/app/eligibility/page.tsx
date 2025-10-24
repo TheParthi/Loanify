@@ -322,8 +322,8 @@ LOAN APPLICATION DETAILS:
 
 CREDIT ASSESSMENT:
 ├─ Credit Score: ${data.creditScore || 'To be verified'} (${analysis.creditScoreCategory})
-├─ Credit History: ${data.creditScore >= 700 ? 'Satisfactory' : 'Requires Review'}
-└─ CIBIL Status: ${data.creditScore >= 650 ? 'Eligible' : 'Below Standard'}
+├─ Credit History: ${(parseInt(data.creditScore || '0') || 0) >= 700 ? 'Satisfactory' : 'Requires Review'}
+└─ CIBIL Status: ${(parseInt(data.creditScore || '0') || 0) >= 650 ? 'Eligible' : 'Below Standard'}
 
 FINANCIAL RATIOS (RBI Guidelines):
 ├─ EMI-to-Income Ratio: ${analysis.debtToIncomeRatio.toFixed(2)}% (Max: 50%)
@@ -332,10 +332,10 @@ FINANCIAL RATIOS (RBI Guidelines):
 └─ Risk Category: ${analysis.riskCategory}
 
 ELIGIBILITY FACTORS:
-${analysis.eligibilityFactors.map(factor => `✓ ${factor}`).join('\n')}
+${analysis.eligibilityFactors.map((factor: string) => `✓ ${factor}`).join('\n')}
 
 ${analysis.rejectionReasons.length > 0 ? `REJECTION REASONS:
-${analysis.rejectionReasons.map(reason => `✗ ${reason}`).join('\n')}` : ''}
+${analysis.rejectionReasons.map((reason: string) => `✗ ${reason}`).join('\n')}` : ''}
 
 ═══════════════════════════════════════════════════════════════
                            FINAL DECISION

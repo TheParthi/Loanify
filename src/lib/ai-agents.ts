@@ -123,7 +123,7 @@ export class UnderwritingAgent {
     
     return {
       message: decision.message,
-      nextAgent: decision.approved ? 'sanction' : null,
+      nextAgent: decision.approved ? 'sanction' : undefined,
       data: { 
         decision: decision.approved ? 'approved' : 'rejected',
         creditScore,

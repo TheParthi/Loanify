@@ -15,7 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { BrainCircuit, Clock, FileText, Terminal } from 'lucide-react';
 import type { Applicant } from '@/lib/types';
-import { handleGenerateReport } from '@/app/actions';
+
 import { useToast } from '@/hooks/use-toast';
 
 interface ApplicantDetailsProps {

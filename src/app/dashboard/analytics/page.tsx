@@ -6,10 +6,46 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { BarChart3, TrendingUp, PieChart, Download, Calendar, Filter, ArrowUpRight, Target, DollarSign, Users, Clock, AlertTriangle } from 'lucide-react';
 
+interface BranchPerformance {
+  branch: string;
+  applications: number;
+  approved: number;
+  disbursed: number;
+}
+
+interface LoanTypeDistribution {
+  type: string;
+  count: number;
+  amount: number;
+}
+
+interface MonthlyTrend {
+  month: string;
+  applications: number;
+  disbursed: number;
+}
+
+interface AnalyticsData {
+  totalApplications?: number;
+  approvedLoans?: number;
+  rejectedLoans?: number;
+  pendingLoans?: number;
+  totalDisbursed?: number;
+  avgLoanAmount?: number;
+  avgProcessingTime?: number;
+  approvalRate?: number;
+  portfolioGrowth?: number;
+  riskScore?: number;
+  customerSatisfaction?: number;
+  branchPerformance?: BranchPerformance[];
+  loanTypeDistribution?: LoanTypeDistribution[];
+  monthlyTrends?: MonthlyTrend[];
+}
+
 export default function BusinessIntelligence() {
   const [timeRange, setTimeRange] = useState('30d');
   const [loading, setLoading] = useState(true);
-  const [analyticsData, setAnalyticsData] = useState({});
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData>({});
 
   useEffect(() => {
     loadAnalyticsData();
@@ -64,14 +100,14 @@ export default function BusinessIntelligence() {
       email: 'analytics@loanify.com',
       mobile: '1800-123-LOAN',
       loanType: 'Analytics Report',
-      loanAmount: analyticsData.totalDisbursed,
+      loanAmount: analyticsData.totalDisbursed || 0,
       creditScore: 850,
       status: 'approved',
       eligibilityPercentage: 95,
-      recommendedAmount: analyticsData.totalDisbursed,
+      recommendedAmount: analyticsData.totalDisbursed || 0,
       interestRate: 0,
       emi: 0,
-      aiReport: `BUSINESS INTELLIGENCE REPORT\n\nPERFORMANCE METRICS (${timeRange.toUpperCase()})\n\nTotal Applications: ${analyticsData.totalApplications}\nApproved Loans: ${analyticsData.approvedLoans}\nApproval Rate: ${analyticsData.approvalRate}%\nTotal Disbursed: ₹${(analyticsData.totalDisbursed / 10000000).toFixed(1)} Crores\nAvg Loan Amount: ₹${analyticsData.avgLoanAmount?.toLocaleString()}\nAvg Processing Time: ${analyticsData.avgProcessingTime} hours\n\nPORTFOLIO ANALYSIS\nPortfolio Growth: ${analyticsData.portfolioGrowth}%\nRisk Score: ${analyticsData.riskScore}%\nCustomer Satisfaction: ${analyticsData.customerSatisfaction}/5\n\nTOP PERFORMING BRANCHES\n${analyticsData.branchPerformance?.slice(0, 3).map(branch => `${branch.branch}: ${branch.approved} loans, ₹${(branch.disbursed / 10000000).toFixed(1)}Cr`).join('\n')}\n\nLOAN TYPE DISTRIBUTION\n${analyticsData.loanTypeDistribution?.map(loan => `${loan.type}: ${loan.count} loans (₹${(loan.amount / 10000000).toFixed(1)}Cr)`).join('\n')}\n\nKEY INSIGHTS\n• Strong portfolio growth of ${analyticsData.portfolioGrowth}% indicates healthy business expansion\n• Approval rate of ${analyticsData.approvalRate}% is within optimal range\n• Average processing time of ${analyticsData.avgProcessingTime} hours meets SLA requirements\n• Risk score of ${analyticsData.riskScore}% indicates well-managed portfolio`,
+      aiReport: `BUSINESS INTELLIGENCE REPORT\n\nPERFORMANCE METRICS (${timeRange.toUpperCase()})\n\nTotal Applications: ${analyticsData.totalApplications || 0}\nApproved Loans: ${analyticsData.approvedLoans || 0}\nApproval Rate: ${analyticsData.approvalRate || 0}%\nTotal Disbursed: ₹${((analyticsData.totalDisbursed || 0) / 10000000).toFixed(1)} Crores\nAvg Loan Amount: ₹${analyticsData.avgLoanAmount?.toLocaleString() || '0'}\nAvg Processing Time: ${analyticsData.avgProcessingTime || 0} hours\n\nPORTFOLIO ANALYSIS\nPortfolio Growth: ${analyticsData.portfolioGrowth || 0}%\nRisk Score: ${analyticsData.riskScore || 0}%\nCustomer Satisfaction: ${analyticsData.customerSatisfaction || 0}/5\n\nTOP PERFORMING BRANCHES\n${analyticsData.branchPerformance?.slice(0, 3).map(branch => `${branch.branch}: ${branch.approved} loans, ₹${(branch.disbursed / 10000000).toFixed(1)}Cr`).join('\n') || 'No data available'}\n\nLOAN TYPE DISTRIBUTION\n${analyticsData.loanTypeDistribution?.map(loan => `${loan.type}: ${loan.count} loans (₹${(loan.amount / 10000000).toFixed(1)}Cr)`).join('\n') || 'No data available'}\n\nKEY INSIGHTS\n• Strong portfolio growth of ${analyticsData.portfolioGrowth || 0}% indicates healthy business expansion\n• Approval rate of ${analyticsData.approvalRate || 0}% is within optimal range\n• Average processing time of ${analyticsData.avgProcessingTime || 0} hours meets SLA requirements\n• Risk score of ${analyticsData.riskScore || 0}% indicates well-managed portfolio`,
       applicationDate: new Date().toISOString(),
       tenure: '0',
       branch: 'Head Office',
@@ -164,10 +200,10 @@ export default function BusinessIntelligence() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-purple-100 text-sm font-medium">Total Disbursed</p>
-                  <p className="text-3xl font-bold">₹{(analyticsData.totalDisbursed / 10000000).toFixed(1)}Cr</p>
+                  <p className="text-3xl font-bold">₹{((analyticsData.totalDisbursed || 0) / 10000000).toFixed(1)}Cr</p>
                   <div className="flex items-center gap-1 mt-2">
                     <ArrowUpRight className="h-4 w-4 text-purple-200" />
-                    <span className="text-sm text-purple-100">+{analyticsData.portfolioGrowth}% growth</span>
+                    <span className="text-sm text-purple-100">+{analyticsData.portfolioGrowth || 0}% growth</span>
                   </div>
                 </div>
                 <DollarSign className="h-12 w-12 text-purple-200" />
@@ -239,7 +275,7 @@ export default function BusinessIntelligence() {
                     </div>
                     <div className="text-right">
                       <p className="font-bold">₹{(loan.amount / 10000000).toFixed(1)}Cr</p>
-                      <p className="text-sm text-gray-600">{((loan.count / analyticsData.totalApplications) * 100).toFixed(1)}%</p>
+                      <p className="text-sm text-gray-600">{((loan.count / (analyticsData.totalApplications || 1)) * 100).toFixed(1)}%</p>
                     </div>
                   </div>
                 ))}
@@ -284,7 +320,7 @@ export default function BusinessIntelligence() {
                 <div className="text-4xl font-bold text-orange-600 mb-2">{analyticsData.riskScore}%</div>
                 <p className="text-sm text-gray-600">Portfolio Risk Level</p>
                 <div className="w-full bg-gray-200 rounded-full h-2 mt-4">
-                  <div className="bg-orange-500 h-2 rounded-full" style={{ width: `${analyticsData.riskScore * 10}%` }}></div>
+                  <div className="bg-orange-500 h-2 rounded-full" style={{ width: `${(analyticsData.riskScore || 0) * 10}%` }}></div>
                 </div>
               </div>
             </CardContent>
@@ -303,7 +339,7 @@ export default function BusinessIntelligence() {
                 <p className="text-sm text-gray-600">Average Rating</p>
                 <div className="flex justify-center mt-4">
                   {[1, 2, 3, 4, 5].map((star) => (
-                    <div key={star} className={`w-6 h-6 ${star <= Math.floor(analyticsData.customerSatisfaction) ? 'text-yellow-400' : 'text-gray-300'}`}>
+                    <div key={star} className={`w-6 h-6 ${star <= Math.floor(analyticsData.customerSatisfaction || 0) ? 'text-yellow-400' : 'text-gray-300'}`}>
                       ★
                     </div>
                   ))}
@@ -321,7 +357,7 @@ export default function BusinessIntelligence() {
             </CardHeader>
             <CardContent>
               <div className="text-center">
-                <div className="text-4xl font-bold text-blue-600 mb-2">₹{(analyticsData.avgLoanAmount / 100000).toFixed(1)}L</div>
+                <div className="text-4xl font-bold text-blue-600 mb-2">₹{((analyticsData.avgLoanAmount || 0) / 100000).toFixed(1)}L</div>
                 <p className="text-sm text-gray-600">Average Disbursement</p>
                 <Badge className="mt-4 bg-blue-100 text-blue-700">
                   +8% vs last period

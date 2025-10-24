@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -8,11 +8,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Upload, FileText, ArrowLeft, CheckCircle, AlertCircle, Eye, Download } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
-export default function UploadPage() {
+function UploadContent() {
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploaded, setUploaded] = useState(false);
-  const [analysisResult, setAnalysisResult] = useState(null);
+  const [analysisResult, setAnalysisResult] = useState<any>(null);
   const [loanType, setLoanType] = useState('personal');
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -96,8 +96,8 @@ export default function UploadPage() {
       }
 
       // Calculate overall eligibility
-      const avgConfidence = analysisResults.reduce((sum, result) => sum + result.analysis.confidence, 0) / analysisResults.length;
-      const hasAllRequired = documentRequirements[loanType].filter(doc => doc.required).length <= files.length;
+      const avgConfidence = analysisResults.reduce((sum, result) => sum + (result.analysis as any).confidence, 0) / analysisResults.length;
+      const hasAllRequired = documentRequirements[loanType as keyof typeof documentRequirements].filter(doc => doc.required).length <= files.length;
       
       const overallResult = {
         eligibilityScore: Math.round(avgConfidence),
@@ -157,10 +157,10 @@ export default function UploadPage() {
       recommendedAmount: analysisResult.status === 'APPROVED' ? 500000 : 0,
       interestRate: analysisResult.status === 'APPROVED' ? 10.5 : 0,
       emi: analysisResult.status === 'APPROVED' ? 16500 : 0,
-      aiReport: `DOCUMENT ANALYSIS REPORT\n\nLoan Type: ${loanType.toUpperCase()}\nDocuments Analyzed: ${analysisResult.documents.length}\nOverall Confidence: ${analysisResult.eligibilityScore}%\nStatus: ${analysisResult.status}\n\nDocument Details:\n${analysisResult.documents.map(doc => `• ${doc.file}: ${doc.analysis.documentType} (${doc.analysis.confidence.toFixed(1)}% confidence)`).join('\n')}\n\nRecommendations:\n${analysisResult.recommendations.map(rec => `• ${rec}`).join('\n')}\n\nNext Steps: ${analysisResult.nextSteps}`,
+      aiReport: `DOCUMENT ANALYSIS REPORT\n\nLoan Type: ${loanType.toUpperCase()}\nDocuments Analyzed: ${analysisResult.documents.length}\nOverall Confidence: ${analysisResult.eligibilityScore}%\nStatus: ${analysisResult.status}\n\nDocument Details:\n${analysisResult.documents.map((doc: any) => `• ${doc.file}: ${doc.analysis.documentType} (${doc.analysis.confidence.toFixed(1)}% confidence)`).join('\n')}\n\nRecommendations:\n${analysisResult.recommendations.map((rec: string) => `• ${rec}`).join('\n')}\n\nNext Steps: ${analysisResult.nextSteps}`,
       applicationDate: new Date().toISOString(),
       tenure: '36',
-      documents: analysisResult.documents.map(doc => doc.analysis.documentType)
+      documents: analysisResult.documents.map((doc: any) => doc.analysis.documentType)
     };
     
     generateProfessionalReport(reportData);
@@ -220,7 +220,7 @@ export default function UploadPage() {
 
                 <div className="space-y-3">
                   <h4 className="font-semibold">Required Documents:</h4>
-                  {documentRequirements[loanType].map((doc, index) => (
+                  {documentRequirements[loanType as keyof typeof documentRequirements].map((doc, index) => (
                     <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
                       <div className={`w-2 h-2 rounded-full mt-2 ${doc.required ? 'bg-red-500' : 'bg-green-500'}`}></div>
                       <div className="flex-1">
@@ -369,7 +369,7 @@ export default function UploadPage() {
 
                     <div className="space-y-3">
                       <h4 className="font-semibold">Document Analysis:</h4>
-                      {analysisResult.documents.map((doc, index) => (
+                      {analysisResult.documents.map((doc: any, index: number) => (
                         <div key={index} className="p-3 rounded-lg border">
                           <div className="flex items-center justify-between mb-2">
                             <span className="font-medium text-sm">{doc.file}</span>
@@ -392,7 +392,7 @@ export default function UploadPage() {
                       <div className="p-4 rounded-lg bg-orange-50 border border-orange-200">
                         <h4 className="font-semibold text-orange-800 mb-2">Recommendations:</h4>
                         <ul className="text-sm text-orange-700 space-y-1">
-                          {analysisResult.recommendations.map((rec, index) => (
+                          {analysisResult.recommendations.map((rec: string, index: number) => (
                             <li key={index}>• {rec}</li>
                           ))}
                         </ul>
@@ -439,5 +439,20 @@ export default function UploadPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function UploadPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    }>
+      <UploadContent />
+    </Suspense>
   );
 }

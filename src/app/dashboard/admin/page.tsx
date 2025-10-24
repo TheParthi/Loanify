@@ -17,17 +17,56 @@ import {
   TrendingDown, AlertCircle, ChevronRight, ChevronDown, ExternalLink, Copy, Share2
 } from 'lucide-react';
 
+interface Application {
+  id: number;
+  name: string;
+  email: string;
+  mobile: string;
+  loanAmount: number;
+  income: number;
+  creditScore: number;
+  status: string;
+  loanType: string;
+  applicationDate: string;
+  referenceId: string;
+  riskCategory: string;
+  processingTime: number;
+  documents: string[];
+  branch: string;
+  officer: string;
+  priority: string;
+  lastActivity: string;
+}
+
+interface Notification {
+  id: number;
+  type: string;
+  message: string;
+  time: string;
+  priority: string;
+}
+
+interface RealTimeData {
+  activeUsers?: number;
+  serverLoad?: number;
+  responseTime?: number;
+  uptime?: string;
+  todayApplications?: number;
+  pendingApprovals?: number;
+  systemAlerts?: number;
+}
+
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [applications, setApplications] = useState([]);
+  const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [adminUser, setAdminUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedApp, setSelectedApp] = useState(null);
+  const [selectedApp, setSelectedApp] = useState<Application | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [realTimeData, setRealTimeData] = useState({});
+  const [realTimeData, setRealTimeData] = useState<RealTimeData>({});
   const [expandedCards, setExpandedCards] = useState({});
   const [filterStatus, setFilterStatus] = useState('all');
   const [dateRange, setDateRange] = useState('today');
@@ -64,7 +103,7 @@ export default function AdminDashboard() {
       if (!response.ok) throw new Error('Backend offline');
       
       const data = await response.json();
-      setApplications(data.map(app => ({
+      setApplications(data.map((app: any) => ({
         id: app.id,
         name: app.name,
         email: app.email,
@@ -144,12 +183,12 @@ export default function AdminDashboard() {
     router.push('/');
   };
 
-  const handleViewApplication = (app) => {
+  const handleViewApplication = (app: Application) => {
     setSelectedApp(app);
     setShowModal(true);
   };
 
-  const handleApproveApplication = (appId) => {
+  const handleApproveApplication = (appId: number) => {
     setApplications(prev => prev.map(app => 
       app.id === appId ? { ...app, status: 'Approved', lastActivity: new Date().toLocaleString() } : app
     ));
@@ -163,7 +202,7 @@ export default function AdminDashboard() {
     setNotifications(prev => [newNotif, ...prev]);
   };
 
-  const handleRejectApplication = (appId) => {
+  const handleRejectApplication = (appId: number) => {
     setApplications(prev => prev.map(app => 
       app.id === appId ? { ...app, status: 'Rejected', lastActivity: new Date().toLocaleString() } : app
     ));
@@ -177,7 +216,7 @@ export default function AdminDashboard() {
     setNotifications(prev => [newNotif, ...prev]);
   };
 
-  const handleDownloadReport = async (app) => {
+  const handleDownloadReport = async (app: Application) => {
     try {
       // Try backend first
       const response = await fetch(`http://localhost:8081/report/${app.referenceId}`);
@@ -282,7 +321,7 @@ export default function AdminDashboard() {
     generateProfessionalReport(rbiReportData);
   };
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case 'Approved': return { backgroundColor: '#E8F6F3', color: '#2ECC71', borderColor: '#2ECC71' };
       case 'Rejected': return { backgroundColor: '#FEF2F2', color: '#E74C3C', borderColor: '#E74C3C' };
@@ -291,7 +330,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const getPriorityColor = (priority) => {
+  const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'High': return '#E74C3C';
       case 'Medium': return '#F39C12';
@@ -301,7 +340,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const getRiskColor = (risk) => {
+  const getRiskColor = (risk: string) => {
     switch (risk) {
       case 'Low Risk': return '#2ECC71';
       case 'Medium Risk': return '#F39C12';

@@ -256,14 +256,14 @@ export class RBIDocumentValidator {
     // Score based on keywords and patterns
     Object.entries(RBI_VALIDATION_RULES).forEach(([type, rules]) => {
       // Keyword matching
-      rules.keywords.forEach(keyword => {
+      rules.keywords.forEach((keyword: string) => {
         if (text.includes(keyword)) {
           scores[type as keyof RBIValidationRules] += 10;
         }
       });
 
       // Pattern matching
-      rules.patterns.forEach(pattern => {
+      rules.patterns.forEach((pattern: RegExp) => {
         if (pattern.test(text)) {
           scores[type as keyof RBIValidationRules] += 15;
         }
@@ -521,8 +521,8 @@ export class RBIDocumentValidator {
       results.push({
         field: 'minimum_salary',
         value: data.basic_pay.toString(),
-        isValid: data.basic_pay >= rules.minAmount,
-        rbiRequirement: `Minimum salary of ₹${rules.minAmount} required`
+        isValid: data.basic_pay >= ('minAmount' in rules ? rules.minAmount : 0),
+        rbiRequirement: `Minimum salary of ₹${'minAmount' in rules ? rules.minAmount : 0} required`
       });
     }
 
@@ -530,8 +530,8 @@ export class RBIDocumentValidator {
       results.push({
         field: 'minimum_balance',
         value: data.balance.toString(),
-        isValid: data.balance >= rules.minBalance,
-        rbiRequirement: `Minimum balance of ₹${rules.minBalance} required`
+        isValid: data.balance >= ('minBalance' in rules ? rules.minBalance : 0),
+        rbiRequirement: `Minimum balance of ₹${'minBalance' in rules ? rules.minBalance : 0} required`
       });
     }
 
@@ -553,9 +553,9 @@ export class RBIDocumentValidator {
       case 'pan':
         return hasMandatoryFields && /^[A-Z]{5}\d{4}[A-Z]$/.test(data.pan_number);
       case 'salary':
-        return hasMandatoryFields && data.basic_pay >= rules.minAmount;
+        return hasMandatoryFields && data.basic_pay >= ('minAmount' in rules ? rules.minAmount : 0);
       case 'bank':
-        return hasMandatoryFields && data.balance >= rules.minBalance;
+        return hasMandatoryFields && data.balance >= ('minBalance' in rules ? rules.minBalance : 0);
       default:
         return hasMandatoryFields;
     }

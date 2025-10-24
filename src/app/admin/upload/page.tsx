@@ -584,7 +584,7 @@ async function realDocumentAnalysis(files: Array<{file: File, type: string}>, ap
         extractedText: `RBI Analysis: ${analysis.recommendation}\nExtracted: ${Object.entries(analysis.extractedData).map(([k,v]) => `${k}: ${v}`).join(', ')}`,
         confidence: analysis.confidence,
         validationResults,
-        rbiCompliant: analysis.rbiCompliant,
+        rbiCompliance: analysis.rbiCompliant,
         issues: analysis.issues,
         recommendation: analysis.recommendation
       };
@@ -599,8 +599,8 @@ async function realDocumentAnalysis(files: Array<{file: File, type: string}>, ap
         validationResults: [
           { field: 'Document Processing', value: 'Failed', isValid: false, confidence: 0 }
         ],
-        rbiCompliant: false,
-        issues: [error.message || 'Failed to process document with RBI validator'],
+        rbiCompliance: false,
+        issues: [(error as Error)?.message || 'Failed to process document with RBI validator'],
         recommendation: 'REJECT'
       };
     }

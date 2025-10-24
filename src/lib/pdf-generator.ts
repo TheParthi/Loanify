@@ -197,7 +197,7 @@ export class PDFGenerator {
     
     // Status badge
     const status = applicant.status.toUpperCase();
-    const statusColor = status === 'APPROVED' ? [34, 197, 94] : status === 'PENDING' ? [251, 191, 36] : [239, 68, 68];
+    const statusColor: [number, number, number] = status === 'APPROVED' ? [34, 197, 94] : status === 'PENDING' ? [251, 191, 36] : [239, 68, 68];
     this.doc.setFillColor(...statusColor);
     this.doc.roundedRect(120, 160, 50, 15, 3, 3, 'F');
     this.doc.setTextColor(255, 255, 255);
@@ -352,7 +352,7 @@ export class PDFGenerator {
     yPos += 10;
     
     // Score gauge representation
-    const scoreColor = creditScore >= 750 ? [34, 197, 94] : creditScore >= 650 ? [251, 191, 36] : [239, 68, 68];
+    const scoreColor: [number, number, number] = creditScore >= 750 ? [34, 197, 94] : creditScore >= 650 ? [251, 191, 36] : [239, 68, 68];
     const scoreRating = creditScore >= 750 ? 'EXCELLENT' : creditScore >= 650 ? 'GOOD' : creditScore >= 550 ? 'FAIR' : 'POOR';
     
     this.doc.setDrawColor(...scoreColor);
@@ -420,7 +420,7 @@ export class PDFGenerator {
     // AI Score with professional presentation
     const score = applicant.evaluation?.loan_eligibility_score || applicant.eligibilityScore || applicant.eligibilityPercentage || 0;
     const riskLevel = score >= 80 ? 'LOW RISK' : score >= 60 ? 'MODERATE RISK' : score >= 40 ? 'HIGH RISK' : 'VERY HIGH RISK';
-    const scoreColor = score >= 80 ? [34, 197, 94] : score >= 60 ? [251, 191, 36] : score >= 40 ? [249, 115, 22] : [239, 68, 68];
+    const scoreColor: [number, number, number] = score >= 80 ? [34, 197, 94] : score >= 60 ? [251, 191, 36] : score >= 40 ? [249, 115, 22] : [239, 68, 68];
     
     this.doc.setFontSize(9);
     this.doc.setFont('helvetica', 'bold');

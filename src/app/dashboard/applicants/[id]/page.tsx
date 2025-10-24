@@ -8,8 +8,9 @@ export async function generateStaticParams() {
   }));
 }
 
-export default function ApplicantDetailsPage({ params }: { params: { id: string } }) {
-  const applicant = applicants.find((a) => a.id === params.id);
+export default async function ApplicantDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const applicant = applicants.find((a) => a.id === id);
 
   if (!applicant) {
     notFound();

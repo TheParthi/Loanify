@@ -64,7 +64,7 @@ function ResultContent() {
     const { generateProfessionalReport } = await import('@/lib/pdf-generator');
     
     const applicantData = {
-      referenceId: loanId,
+      referenceId: loanId || undefined,
       name: loanData?.name || 'Applicant',
       email: `${(loanData?.name || 'applicant').toLowerCase().replace(/\s+/g, '.')}@email.com`,
       mobile: '9876543210',
